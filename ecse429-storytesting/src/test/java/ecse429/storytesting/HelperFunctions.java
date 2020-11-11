@@ -144,6 +144,38 @@ public class HelperFunctions {
         Todo result = gson.fromJson(response.asString(), Todo.class);
         return result;
     }
+    
+    public static Todo getTodoFromTodoId(String todoId) {
+    	
+    	RequestSpecification request = given()
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .baseUri("http://localhost:4567");
+
+        Response response = request.get("/todos/" + todoId);
+        
+        Todo todo = gson.fromJson(response.asString(), Todo.class);
+        
+        return todo;
+    	
+    }
+    
+    public static Todo updateTodoDescription(String todoId, String new_description) {
+    	
+    	RequestSpecification request = RestAssured.given();
+    	
+    	JSONObject requestParams = new JSONObject();
+    	requestParams.put("description", new_description);
+    	
+    	request.body(requestParams.toJSONString())
+    	.baseUri("http://localhost:4567");
+    	
+    	Response response = request.put("/todos/"+todoId);
+    	
+    	Todo result = gson.fromJson(response.asString(), Todo.class);
+    	
+    	return result;	
+    }
 
 
 

@@ -17,108 +17,142 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Map;
 
-
 class IsItFriday {
-    static String isItFriday(String today) {
-        return "Friday".equals(today) ? "TGIF" : "Nope";
-    }
+	static String isItFriday(String today) {
+		return "Friday".equals(today) ? "TGIF" : "Nope";
+	}
 }
 
 public class StepDefinitions {
 
-    /*------ STORY EXAMPLE ------*/
-    private String today;
-    private String actualAnswer;
+	/*------ STORY EXAMPLE ------*/
+	private String today;
+	private String actualAnswer;
 
-    @Given("^today is \"([^\"]*)\"$")
-    public void today_is(String today) {
-        this.today = today;
-    }
+	@Given("^today is \"([^\"]*)\"$")
+	public void today_is(String today) {
+		this.today = today;
+	}
 
-    @When("^I ask whether it's Friday yet$")
-    public void i_ask_whether_it_s_Friday_yet() {
-        actualAnswer = IsItFriday.isItFriday(today);
-    }
+	@When("^I ask whether it's Friday yet$")
+	public void i_ask_whether_it_s_Friday_yet() {
+		actualAnswer = IsItFriday.isItFriday(today);
+	}
 
-    @Then("^I should be told \"([^\"]*)\"$")
-    public void i_should_be_told(String expectedAnswer) {
-        assertEquals(expectedAnswer, actualAnswer);
-    }
+	@Then("^I should be told \"([^\"]*)\"$")
+	public void i_should_be_told(String expectedAnswer) {
+		assertEquals(expectedAnswer, actualAnswer);
+	}
 
-    /*----------------------------*/
+	/*----------------------------*/
 
-    @Given("^a task with title \"([^\"]*)\"$")
-    public void a_task_with_title(String title) throws Exception {
-        Todo todo = HelperFunctions.createTodo(title, false, "");
-        Context.getContext().set("task_id", todo.getId());
-    }
+	@Given("^a task with title \"([^\"]*)\"$")
+	public void a_task_with_title(String title) throws Exception {
+		Todo todo = HelperFunctions.createTodo(title, false, "");
+		Context.getContext().set("task_id", todo.getId());
+	}
 
-    @Given("^a category with the \"([^\"]*)\"$")
-    public void a_category_with_the_HIGH(String title) throws Exception {
-        Category category = HelperFunctions.createCategory(title, "");
-        Context.getContext().set("category_id", category.getId());
-    }
+	@Given("^a category with the \"([^\"]*)\"$")
+	public void a_category_with_the_HIGH(String title) throws Exception {
+		Category category = HelperFunctions.createCategory(title, "");
+		Context.getContext().set("category_id", category.getId());
+	}
 
-    @When("^I link the task to the \"([^\"]*)\"$")
-    public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
-        int task_id = Context.getContext().get("task_id");
-        int category_id = Context.getContext().get("category_id");
+	@When("^I link the task to the \"([^\"]*)\"$")
+	public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
+		int task_id = Context.getContext().get("task_id");
+		int category_id = Context.getContext().get("category_id");
 
-        HelperFunctions.linkTodoAndCategory(task_id, category_id);
-    }
+		HelperFunctions.linkTodoAndCategory(task_id, category_id);
+	}
 
-    @Then("^the task is categorized with the \"([^\"]*)\"")
-    public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
-        int task_id = Context.getContext().get("task_id");
+	@Then("^the task is categorized with the \"([^\"]*)\"")
+	public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
+		int task_id = Context.getContext().get("task_id");
 
-        Category c = HelperFunctions.getCategoryFromTodoId(task_id);
+		Category c = HelperFunctions.getCategoryFromTodoId(task_id);
 
-        assertEquals(priority, c.getTitle());
-    }
+		assertEquals(priority, c.getTitle());
+	}
 
-    //-----------STORY04------------//
+	// -----------STORY04------------//
 
-    @Given("^a course with title \"([^\"]*)\"$")
-    public void a_course_with_title(String courseTitle) throws Exception {
-        Project course = HelperFunctions.createProject(courseTitle, false, false, "");
-        Context.getContext().set(courseTitle, course.getId());
-    }
+	@Given("^a course with title \"([^\"]*)\"$")
+	public void a_course_with_title(String courseTitle) throws Exception {
+		Project course = HelperFunctions.createProject(courseTitle, false, false, "");
+		Context.getContext().set(courseTitle, course.getId());
+	}
 
-    @Given("^created tasks$")
-    public void created_tasks(DataTable table) throws Exception {
-        Todo assignment1;
-        Todo assignment2;
-        Todo homework1;
+	@Given("^created tasks$")
+	public void created_tasks(DataTable table) throws Exception {
+		Todo assignment1;
+		Todo assignment2;
+		Todo homework1;
 
-        List<Map<String, String>> list = table.asMaps(String.class, String.class);
-        Map<String, String> ass1Map = list.get(0);
-        assignment1 = HelperFunctions.createTodo(ass1Map.get("title"), Boolean.parseBoolean(ass1Map.get("doneStatus")), ass1Map.get("description"));
-        Context.getContext().set(ass1Map.get("title"), assignment1.getId());
+		List<Map<String, String>> list = table.asMaps(String.class, String.class);
+		Map<String, String> ass1Map = list.get(0);
+		assignment1 = HelperFunctions.createTodo(ass1Map.get("title"), Boolean.parseBoolean(ass1Map.get("doneStatus")),
+				ass1Map.get("description"));
+		Context.getContext().set(ass1Map.get("title"), assignment1.getId());
 
-        Map<String, String> ass2Map = list.get(1);
-        assignment2 = HelperFunctions.createTodo(ass2Map.get("title"), Boolean.parseBoolean(ass2Map.get("doneStatus")), ass2Map.get("description"));
-        Context.getContext().set(ass2Map.get("title"), assignment2.getId());
+		Map<String, String> ass2Map = list.get(1);
+		assignment2 = HelperFunctions.createTodo(ass2Map.get("title"), Boolean.parseBoolean(ass2Map.get("doneStatus")),
+				ass2Map.get("description"));
+		Context.getContext().set(ass2Map.get("title"), assignment2.getId());
 
-        Map<String, String> hw1Map = list.get(2);
-        homework1 = HelperFunctions.createTodo(hw1Map.get("title"), Boolean.parseBoolean(hw1Map.get("doneStatus")), hw1Map.get("description"));
-        Context.getContext().set(hw1Map.get("title"), homework1.getId());
+		Map<String, String> hw1Map = list.get(2);
+		homework1 = HelperFunctions.createTodo(hw1Map.get("title"), Boolean.parseBoolean(hw1Map.get("doneStatus")),
+				hw1Map.get("description"));
+		Context.getContext().set(hw1Map.get("title"), homework1.getId());
 
-    }
+	}
 
-    @Given("^\"([^\"]*)\" and \"([^\"]*)\" are added to the course \"([^\"]*)\" todo list$")
-    public void and_are_added_to_the_course_todo_list(String ass1, String ass2, String courseTitle) throws Exception {
-        HelperFunctions.addTodoToProject(Context.getContext().get(ass1), Context.getContext().get(courseTitle));
-        HelperFunctions.addTodoToProject(Context.getContext().get(ass2), Context.getContext().get(courseTitle));
-    }
+	@Given("^\"([^\"]*)\" and \"([^\"]*)\" are added to the course \"([^\"]*)\" todo list$")
+	public void and_are_added_to_the_course_todo_list(String ass1, String ass2, String courseTitle) throws Exception {
+		HelperFunctions.addTodoToProject(Context.getContext().get(ass1), Context.getContext().get(courseTitle));
+		HelperFunctions.addTodoToProject(Context.getContext().get(ass2), Context.getContext().get(courseTitle));
+	}
 
-    @When("^I remove \"([^\"]*)\" from the course \"([^\"]*)\" todo list$")
-    public void i_remove_from_the_course_todo_list(String todoTitle, String courseTitle) throws Exception {
-        int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(todoTitle), Context.getContext().get(courseTitle));
-        Context.getContext().set("status_code", statusCode);
-    }
+	@When("^I remove \"([^\"]*)\" from the course \"([^\"]*)\" todo list$")
+	public void i_remove_from_the_course_todo_list(String todoTitle, String courseTitle) throws Exception {
+		int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(todoTitle),
+				Context.getContext().get(courseTitle));
+		Context.getContext().set("status_code", statusCode);
+	}
 
-    @Then("^the returned statusCode is \"(\\d+)\"$")
-    public void the_returned_statusCode_is(int statusCode) throws Exception {
-        assertEquals(statusCode, Context.getContext().get("status_code"));
-    }
+	@Then("^the returned statusCode is \"(\\d+)\"$")
+	public void the_returned_statusCode_is(int statusCode) throws Exception {
+		assertEquals(statusCode, Context.getContext().get("status_code"));
+	}
+	
+	
+	
+	
+	/*--- Story10 ---*/
+
+	@Given("^a task with description \"([^\"]*)\"$")
+	public void a_task_with_description(String description) throws Exception {
+		Todo todo = HelperFunctions.createTodo("TestStory10", false, description);
+		Context.getContext().set("task_id", "" + todo.id);
+	}
+
+	@When("^I update the task description to \"([^\"]*)\"$")
+	public void i_update_the_task_description_to(String new_description) throws Exception {
+		String task_id = Context.getContext().get("task_id");
+		HelperFunctions.updateTodoDescription(task_id, new_description);
+	}
+
+	@Then("^the task has description \"([^\"]*)\"$")
+	public void the_task_has_description(String resulting_description) throws Exception {
+		String task_id = Context.getContext().get("task_id");
+	
+		Todo t = HelperFunctions.getTodoFromTodoId(task_id);
+		
+		assertEquals(resulting_description, t.description);
+	}
+	
+	/*---------------*/
+
+
+
 }
