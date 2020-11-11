@@ -3,6 +3,18 @@ Feature: Task priority categorization
     I categorize tasks as HIGH, MEDIUM or LOW priority,
     so I can better manage my time.
 
+    Scenario Outline: Categorize task with a certain priority level
+        Given a task with title <task_title>
+        And a category with the <existing_category_priority>
+        When I link the task to the <category_priority>
+        Then the task is categorized with the <resulting_priority>
+        Examples:
+            | task_title | existing_category_priority | category_priority | resulting_priority |
+            | ECSE 429   | HIGH                       | HIGH              | HIGH               |
+            | ECSE 429   | MEDIUM                     | MEDIUM            | MEDIUM             |
+            | ECSE 429   | HIGH                       | MEDIUM            | none               |
+
+
     # Normal Flow
     Scenario: Categorize task as HIGH priority
         Given a task containing
