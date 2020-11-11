@@ -4,6 +4,7 @@ import cucumber.api.DataTable;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
 import cucumber.api.PendingException;
+import ecse429.storytesting.Model.Todo;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,6 +23,8 @@ public class StepDefinitions {
 	/*------ STORY EXAMPLE ------*/
 	private String today;
     private String actualAnswer;
+
+    private Map
 
     @Given("^today is \"([^\"]*)\"$")
     public void today_is(String today) {
@@ -51,7 +54,7 @@ public class StepDefinitions {
         String description = list.get(0).get("description");
 
         // create the to-do
-        HelperFunctions.createTodo(title, completed, active, description);
+        HelperFunctions.createProject(title, completed, active, description);
     }
 
     @Given("^a category containing$")
@@ -86,6 +89,44 @@ public class StepDefinitions {
 
     @Given("^a link between the above task and a high priority category$")
     public void a_link_between_the_above_task_and_a_high_priority_category() throws Exception {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+
+
+    @Given("^a course as a project$")
+    public void a_course_as_a_project(DataTable arg1) throws Exception {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // List<YourType>, List<List<E>>, List<Map<K,V>> or Map<K,V>.
+        // E,K,V must be a scalar (String, Integer, Date, enum etc)
+    }
+    @Given("^created tasks$")
+    public void created_tasks(DataTable table) throws Exception {
+        Todo assignment1;
+        Todo assignment2;
+        Todo project1;
+
+        List<Map<String, String>> list = table.asMaps(String.class, String.class);
+        Map<String, String> ass1Map = list.get(0);
+        assignment1 = HelperFunctions.createTodo(ass1Map.get("title"), Boolean.parseBoolean(ass1Map.get("doneStatus")), ass1Map.get("description"));
+        Context.getContext().set(ass1Map.get("title"), assignment1.id);
+    }
+    @Given("^\"([^\"]*)\" and \"([^\"]*)\" are added to the class \"([^\"]*)\" todo list$")
+    public void and_are_added_to_the_class_todo_list(String arg1, String arg2, String arg3) throws Exception {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+    @When("^I remove ([^\"]*) from the class ([^\"]*) todo list$")
+    public void i_remove_from_the_class_todo_list(String title, String classTitle) throws Exception {
+
+        int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(title), Context.getContext().get(classTitle));
+
+        assertEquals();
+    }
+    @Then("^the returned statusCode is \\{int}$")
+    public void the_returned_statusCode_is(int arg1) throws Exception {
         // Write code here that turns the phrase above into concrete actions
         throw new PendingException();
     }
