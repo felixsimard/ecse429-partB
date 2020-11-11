@@ -98,11 +98,12 @@ public class HelperFunctions {
     public static void linkTodoAndCategory(int todoId, int categoryId) {
 
         // add the category to the todo
-        RequestSpecification requestPost = RestAssured.given().baseUri("http://localhost:4567");;
+        RequestSpecification requestPost = RestAssured.given();
         JSONObject requestParams = new JSONObject();
-        requestParams.put("id", categoryId);
+        requestParams.put("id", String.valueOf(categoryId));
 
-        requestPost.body(requestParams.toJSONString());
+        requestPost.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
 
 
         requestPost

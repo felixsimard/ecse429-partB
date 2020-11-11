@@ -4,8 +4,14 @@ import cucumber.api.DataTable;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
 import cucumber.api.PendingException;
+import ecse429.storytesting.Model.Category;
+import ecse429.storytesting.Model.Project;
 import ecse429.storytesting.Model.Todo;
+import io.restassured.RestAssured;
+import io.restassured.specification.RequestSpecification;
 
+import static io.restassured.RestAssured.get;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
@@ -14,121 +20,105 @@ import java.util.Map;
 
 class IsItFriday {
     static String isItFriday(String today) {
-    	return "Friday".equals(today) ? "TGIF" : "Nope";
+        return "Friday".equals(today) ? "TGIF" : "Nope";
     }
 }
 
 public class StepDefinitions {
 
-	/*------ STORY EXAMPLE ------*/
-	private String today;
+    /*------ STORY EXAMPLE ------*/
+    private String today;
     private String actualAnswer;
-
-    private Map
 
     @Given("^today is \"([^\"]*)\"$")
     public void today_is(String today) {
         this.today = today;
     }
 
-	@When("^I ask whether it's Friday yet$")
-	public void i_ask_whether_it_s_Friday_yet() {
-		actualAnswer = IsItFriday.isItFriday(today);
-	}
-
-	@Then("^I should be told \"([^\"]*)\"$")
-	public void i_should_be_told(String expectedAnswer) {
-		assertEquals(expectedAnswer, actualAnswer);
-	}
-
-	/*----------------------------*/
-
-
-    @Given("a task containing")
-    public void a_task_containing(DataTable table) {
-        /* extract to-do's data */
-        List<Map<String, String>> list = table.asMaps(String.class, String.class);
-        String title = list.get(0).get("title");
-        boolean completed = Boolean.parseBoolean(list.get(0).get("completed"));
-        boolean active = Boolean.parseBoolean(list.get(0).get("active"));
-        String description = list.get(0).get("description");
-
-        // create the to-do
-        HelperFunctions.createProject(title, completed, active, description);
+    @When("^I ask whether it's Friday yet$")
+    public void i_ask_whether_it_s_Friday_yet() {
+        actualAnswer = IsItFriday.isItFriday(today);
     }
 
-    @Given("^a category containing$")
-    public void a_category_containing(DataTable arg1) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // List<YourType>, List<List<E>>, List<Map<K,V>> or Map<K,V>.
-        // E,K,V must be a scalar (String, Integer, Date, enum etc)
-        throw new PendingException();
+    @Then("^I should be told \"([^\"]*)\"$")
+    public void i_should_be_told(String expectedAnswer) {
+        assertEquals(expectedAnswer, actualAnswer);
     }
 
-    @When("^I link the above task to the (.*) priority category$")
-    public void i_link_the_above_task_to_the_priority_category(String arg1) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    /*----------------------------*/
+
+    @Given("^a task with title \"([^\"]*)\"$")
+    public void a_task_with_title(String title) throws Exception {
+        Todo todo = HelperFunctions.createTodo(title, false, "");
+        Context.getContext().set("task_id", todo.getId());
     }
 
-    @Then("^the task is categorized with the corresponding priority$")
-    public void the_task_is_categorized_with_the_corresponding_priority() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @Given("^a category with the \"([^\"]*)\"$")
+    public void a_category_with_the_HIGH(String title) throws Exception {
+        Category category = HelperFunctions.createCategory(title, "");
+        Context.getContext().set("category_id", category.getId());
     }
 
-    @Given("^multiple categories containing$")
-    public void multiple_categories_containing(DataTable arg1) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // List<YourType>, List<List<E>>, List<Map<K,V>> or Map<K,V>.
-        // E,K,V must be a scalar (String, Integer, Date, enum etc)
-        throw new PendingException();
+    @When("^I link the task to the \"([^\"]*)\"$")
+    public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
+        int task_id = Context.getContext().get("task_id");
+        int category_id = Context.getContext().get("category_id");
+
+        HelperFunctions.linkTodoAndCategory(task_id, category_id);
     }
 
-    @Given("^a link between the above task and a high priority category$")
-    public void a_link_between_the_above_task_and_a_high_priority_category() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @Then("^the task is categorized with the \"([^\"]*)\"")
+    public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
+        int task_id = Context.getContext().get("task_id");
+
+        Category c = HelperFunctions.getCategoryFromTodoId(task_id);
+
+        assertEquals(priority, c.getTitle());
     }
 
+    //-----------STORY04------------//
 
-
-    @Given("^a course as a project$")
-    public void a_course_as_a_project(DataTable arg1) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // List<YourType>, List<List<E>>, List<Map<K,V>> or Map<K,V>.
-        // E,K,V must be a scalar (String, Integer, Date, enum etc)
+    @Given("^a course with title \"([^\"]*)\"$")
+    public void a_course_with_title(String courseTitle) throws Exception {
+        Project course = HelperFunctions.createProject(courseTitle, false, false, "");
+        Context.getContext().set(courseTitle, course.getId());
     }
+
     @Given("^created tasks$")
     public void created_tasks(DataTable table) throws Exception {
         Todo assignment1;
         Todo assignment2;
-        Todo project1;
+        Todo homework1;
 
         List<Map<String, String>> list = table.asMaps(String.class, String.class);
         Map<String, String> ass1Map = list.get(0);
         assignment1 = HelperFunctions.createTodo(ass1Map.get("title"), Boolean.parseBoolean(ass1Map.get("doneStatus")), ass1Map.get("description"));
-        Context.getContext().set(ass1Map.get("title"), assignment1.id);
-    }
-    @Given("^\"([^\"]*)\" and \"([^\"]*)\" are added to the class \"([^\"]*)\" todo list$")
-    public void and_are_added_to_the_class_todo_list(String arg1, String arg2, String arg3) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
-    }
-    @When("^I remove ([^\"]*) from the class ([^\"]*) todo list$")
-    public void i_remove_from_the_class_todo_list(String title, String classTitle) throws Exception {
+        Context.getContext().set(ass1Map.get("title"), assignment1.getId());
 
-        int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(title), Context.getContext().get(classTitle));
+        Map<String, String> ass2Map = list.get(1);
+        assignment2 = HelperFunctions.createTodo(ass2Map.get("title"), Boolean.parseBoolean(ass2Map.get("doneStatus")), ass2Map.get("description"));
+        Context.getContext().set(ass2Map.get("title"), assignment2.getId());
 
-        assertEquals();
-    }
-    @Then("^the returned statusCode is \\{int}$")
-    public void the_returned_statusCode_is(int arg1) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+        Map<String, String> hw1Map = list.get(2);
+        homework1 = HelperFunctions.createTodo(hw1Map.get("title"), Boolean.parseBoolean(hw1Map.get("doneStatus")), hw1Map.get("description"));
+        Context.getContext().set(hw1Map.get("title"), homework1.getId());
+
     }
 
+    @Given("^\"([^\"]*)\" and \"([^\"]*)\" are added to the course \"([^\"]*)\" todo list$")
+    public void and_are_added_to_the_course_todo_list(String ass1, String ass2, String courseTitle) throws Exception {
+        HelperFunctions.addTodoToProject(Context.getContext().get(ass1), Context.getContext().get(courseTitle));
+        HelperFunctions.addTodoToProject(Context.getContext().get(ass2), Context.getContext().get(courseTitle));
+    }
+
+    @When("^I remove \"([^\"]*)\" from the course \"([^\"]*)\" todo list$")
+    public void i_remove_from_the_course_todo_list(String todoTitle, String courseTitle) throws Exception {
+        int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(todoTitle), Context.getContext().get(courseTitle));
+        Context.getContext().set("status_code", statusCode);
+    }
+
+    @Then("^the returned statusCode is \"(\\d+)\"$")
+    public void the_returned_statusCode_is(int statusCode) throws Exception {
+        assertEquals(statusCode, Context.getContext().get("status_code"));
+    }
 }
