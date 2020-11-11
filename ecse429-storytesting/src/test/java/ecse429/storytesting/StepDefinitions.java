@@ -1,14 +1,47 @@
 package ecse429.storytesting;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
 import cucumber.api.PendingException;
+
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
 
+
+class IsItFriday {
+    static String isItFriday(String today) {
+    	return "Friday".equals(today) ? "TGIF" : "Nope";
+    }
+}
+
 public class StepDefinitions {
 
+	/*------ STORY EXAMPLE ------*/
+	private String today;
+    private String actualAnswer;
+
+    @Given("^today is \"([^\"]*)\"$")
+    public void today_is(String today) {
+        this.today = today;
+    }
+
+	@When("^I ask whether it's Friday yet$")
+	public void i_ask_whether_it_s_Friday_yet() {
+		actualAnswer = IsItFriday.isItFriday(today);
+	}
+
+	@Then("^I should be told \"([^\"]*)\"$")
+	public void i_should_be_told(String expectedAnswer) {
+		assertEquals(expectedAnswer, actualAnswer);
+	}
+
+	/*----------------------------*/
+
+
+	/*
     @Given("a task containing")
     public void a_task_containing(DataTable table) {
         /* extract to-do's data */
@@ -18,9 +51,10 @@ public class StepDefinitions {
         boolean active = Boolean.parseBoolean(list.get(0).get("active"));
         String description = list.get(0).get("description");
 
-        /* create the to-do */
+        // create the to-do
         HelperFunctions.createTodo(title, completed, active, description);
     }
+    */
 
     @Given("^a category containing$")
     public void a_category_containing(DataTable arg1) throws Exception {

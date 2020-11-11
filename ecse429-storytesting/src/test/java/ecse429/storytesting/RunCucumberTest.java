@@ -4,6 +4,10 @@ import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
-@CucumberOptions(plugin = {"pretty"})
+@CucumberOptions(
+		monochrome = true,
+		features = "src/test/resources/ecse429/storytesting/",
+		plugin = {"pretty"}
+		)
 public class RunCucumberTest{
 }
