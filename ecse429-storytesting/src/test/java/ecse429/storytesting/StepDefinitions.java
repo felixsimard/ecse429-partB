@@ -41,7 +41,6 @@ public class StepDefinitions {
 	/*----------------------------*/
 
 
-	/*
     @Given("a task containing")
     public void a_task_containing(DataTable table) {
         /* extract to-do's data */
@@ -54,7 +53,6 @@ public class StepDefinitions {
         // create the to-do
         HelperFunctions.createTodo(title, completed, active, description);
     }
-    */
 
     @Given("^a category containing$")
     public void a_category_containing(DataTable arg1) throws Exception {
