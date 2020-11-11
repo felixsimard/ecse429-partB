@@ -10,10 +10,10 @@ public class Context {
 
     private static Context instance = null;
 
-    private Map<String, String> variables;
+    private Map<String, Integer> variables;
 
     public Context() {
-        this.variables = new HashMap<String, String>();
+        this.variables = new HashMap<String, Integer>();
     }
 
     public static Context getContext() {
@@ -27,11 +27,11 @@ public class Context {
         instance = null;
     }
 
-    public String get(String key) {
+    public int get(String key) {
         return this.variables.get(key);
     }
 
-    public void set(String key, String value) {
+    public void set(String key, int value) {
         this.variables.put(key, value);
     }
 
