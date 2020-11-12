@@ -1,5 +1,6 @@
 package ecse429.storytesting;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import cucumber.api.DataTable;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
@@ -96,7 +97,7 @@ public class StepDefinitions {
 
 	@Given("^a course with title \"([^\"]*)\"$")
 	public void a_course_with_title(String courseTitle) throws Exception {
-		Project course = HelperFunctions.createProject(courseTitle, false, false, "");
+		Project course = HelperFunctions.createProject(courseTitle, "", "", "");
 		Context.getContext().set(courseTitle, course.getId());
 	}
 
@@ -141,6 +142,20 @@ public class StepDefinitions {
 	public void the_returned_statusCode_is(int statusCode) throws Exception {
 		assertEquals(statusCode, Context.getContext().get("status_code"));
 	}
+
+	//--------STORY05-------//
+
+	@When("^I create a new to do list with title \"([^\"]*)\", completed status \"([^\"]*)\", active status \"([^\"]*)\", and description \"([^\"]*)\"$")
+	public void i_create_a_new_to_do_list_with_title_completed_status_active_status_and_description(String title, String completed, String active, String description) throws Exception {
+		HelperFunctions.createProject(title, completed, active, description);
+	}
+
+	@Then("^the returned status code is \"(\\d+)\"$")
+	public void the_returned_status_code_is(int statusCode) throws Exception {
+		assertEquals(statusCode, Context.getContext().get("status_code"));
+	}
+
+
 
 	/*--- Story7 ---*/
 

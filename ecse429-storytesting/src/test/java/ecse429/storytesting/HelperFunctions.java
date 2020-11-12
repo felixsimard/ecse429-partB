@@ -47,19 +47,20 @@ public class HelperFunctions {
     //---------PROJECTS------------//
 
 
-    public static Project createProject(String title, boolean completed, boolean active, String description) {
+    public static Project createProject(String title, String completed, String active, String description) {
         RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
 
         JSONObject requestParams = new JSONObject();
-        requestParams.put("title", title);
-        requestParams.put("completed", completed);
-        requestParams.put("active", active);
-        requestParams.put("description", description);
-
+        if(!title.equals("")) requestParams.put("title", title);
+        if(!completed.equals("")) requestParams.put("completed", completed);
+        if(!active.equals("")) requestParams.put("active", active);
+        if(!description.equals("")) requestParams.put("description", description);
 
         request.body(requestParams.toJSONString());
 
         Response response = request.post("/projects");
+
+        Context.getContext().set("status_code", response.getStatusCode());
 
         Project result = gson.fromJson(response.asString(), Project.class);
         return result;
