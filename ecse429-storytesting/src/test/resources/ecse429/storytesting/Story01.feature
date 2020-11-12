@@ -9,9 +9,9 @@ Feature: Task priority categorization
     # Normal flow
     Scenario Outline: Categorize task with a certain priority level
         Given a task with title "ECSE429"
-        And a category with the "<existing_priority>"
-        When I link the task to the "<category_priority>"
-        Then the task is categorized with the "<category_priority>"
+        And a category with the title "<existing_priority>"
+        When I link the task to the category with title "<category_priority>"
+        Then the task is categorized with the title "<category_priority>"
         Examples:
             | existing_priority | category_priority |
             | HIGH              | HIGH              |
@@ -21,11 +21,11 @@ Feature: Task priority categorization
     # Alternative Flow
     Scenario Outline: Change category task with a certain priority level
         Given a task with title "ECSE429"
-        And a category with the "<priority1>"
-        And a category with the "<priority2>"
-        When I link the task to the "<priority1>"
-        And I link the task to the "<priority1>"
-        Then the task is categorized with the "<priority2>"
+        And a category with the title "<priority1>"
+        And a category with the title "<priority2>"
+        When I link the task to the category with title "<priority1>"
+        And I link the task to the category with title "<priority1>"
+        Then the task is categorized with the title "<priority2>"
         Examples:
             | priority1 | priority2 |
             | HIGH      | MEDIUM    |
@@ -35,8 +35,8 @@ Feature: Task priority categorization
     # Error Flow
     Scenario Outline: Categorize task with a non existent priority level
         Given a task with title "ECSE429"
-        And a category with the "<priority1>"
-        When I link the task to the "<priority2>"
+        And a category with the title "<priority1>"
+        When I link the task to the category with title "<priority2>"
         Then the returned statusCode is "<status_code>"
         Examples:
             | priority1 | priority2 | status_code |
