@@ -17,32 +17,26 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Map;
 
-class IsItFriday {
-	static String isItFriday(String today) {
-		return "Friday".equals(today) ? "TGIF" : "Nope";
-	}
-}
-
 public class StepDefinitions {
 
 	/*------ STORY EXAMPLE ------*/
-	private String today;
-	private String actualAnswer;
-
-	@Given("^today is \"([^\"]*)\"$")
-	public void today_is(String today) {
-		this.today = today;
-	}
-
-	@When("^I ask whether it's Friday yet$")
-	public void i_ask_whether_it_s_Friday_yet() {
-		actualAnswer = IsItFriday.isItFriday(today);
-	}
-
-	@Then("^I should be told \"([^\"]*)\"$")
-	public void i_should_be_told(String expectedAnswer) {
-		assertEquals(expectedAnswer, actualAnswer);
-	}
+//	private String today;
+//	private String actualAnswer;
+//
+//	@Given("^today is \"([^\"]*)\"$")
+//	public void today_is(String today) {
+//		this.today = today;
+//	}
+//
+//	@When("^I ask whether it's Friday yet$")
+//	public void i_ask_whether_it_s_Friday_yet() {
+//		actualAnswer = IsItFriday.isItFriday(today);
+//	}
+//
+//	@Then("^I should be told \"([^\"]*)\"$")
+//	public void i_should_be_told(String expectedAnswer) {
+//		assertEquals(expectedAnswer, actualAnswer);
+//	}
 
 	/*----------------------------*/
 
@@ -124,9 +118,18 @@ public class StepDefinitions {
 	public void the_returned_statusCode_is(int statusCode) throws Exception {
 		assertEquals(statusCode, Context.getContext().get("status_code"));
 	}
-	
-	
-	
+
+	/*--- Story7 ---*/
+
+	/*---------------*/
+
+	/*--- Story8 ---*/
+
+	/*---------------*/
+
+	/*--- Story9 ---*/
+
+	/*---------------*/
 	
 	/*--- Story10 ---*/
 
@@ -145,12 +148,12 @@ public class StepDefinitions {
 	@Then("^the task has description \"([^\"]*)\"$")
 	public void the_task_has_description(String resulting_description) throws Exception {
 		String task_id = Context.getContext().get("task_id");
-	
+
 		Todo t = HelperFunctions.getTodoFromTodoId(task_id);
-		
+
 		assertEquals(resulting_description, t.description);
 	}
-	
+
 	/*---------------*/
 
 
