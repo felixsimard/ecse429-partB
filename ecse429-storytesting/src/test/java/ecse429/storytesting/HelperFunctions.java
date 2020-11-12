@@ -10,6 +10,8 @@ import io.restassured.RestAssured;
 import io.restassured.response.*;
 import io.restassured.specification.RequestSpecification;
 
+import java.io.IOException;
+
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -20,10 +22,26 @@ public class HelperFunctions {
 
     private static final int STATUS_CODE_CREATED = 201;
     private static Gson gson = new Gson();
-
+    private static Process process;
 
     public HelperFunctions() {
         RestAssured.baseURI = "http://localhost:4567/";
+    }
+
+    //--------APPLICATION----------//
+
+    public static Process startApplication() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            process = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return process;
+    }
+
+    public static void stopApplication() {
+        if(process != null) process.destroy();
     }
 
     //---------PROJECTS------------//
@@ -145,7 +163,7 @@ public class HelperFunctions {
         return result;
     }
     
-    public static Todo getTodoFromTodoId(String todoId) {
+    public static Todo getTodoFromTodoId(int todoId) {
     	
     	RequestSpecification request = given()
                 .header("Content-Type", "application/json")
@@ -160,7 +178,7 @@ public class HelperFunctions {
     	
     }
     
-    public static Todo updateTodoDescription(String todoId, String new_description) {
+    public static Todo updateTodoDescription(int todoId, String new_description) {
     	
     	RequestSpecification request = RestAssured.given();
     	

@@ -3,6 +3,10 @@ Feature: Task priority categorization
     I categorize tasks as HIGH, MEDIUM or LOW priority,
     so I can better manage my time.
 
+    Background:
+        Given the application is running
+
+
     Scenario Outline: Categorize task with a certain priority level
         Given a task with title "<task_title>"
         And a category with the "<existing_category_priority>"

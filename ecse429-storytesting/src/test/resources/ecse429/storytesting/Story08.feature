@@ -3,6 +3,9 @@ Feature: Query all incomplete HIGH priority tasks
   I query all incomplete HIGH priority tasks from all my classes,
   to identity my short-term goals.
 
+  Background:
+    Given the application is running
+
   Scenario Outline: Query all incomplete HIGH priority tasks
 
     Given a project with title "<class>"

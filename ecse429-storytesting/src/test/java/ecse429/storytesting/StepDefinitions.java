@@ -38,6 +38,29 @@ public class StepDefinitions {
 //		assertEquals(expectedAnswer, actualAnswer);
 //	}
 
+	//--------BACKGROUND-----------//
+
+	@Given("^the application is running$")
+	public void the_application_is_running() throws Exception {
+		try {
+			HelperFunctions.stopApplication();
+			Thread.sleep(260);
+			boolean appStarted = false;
+			Process process = HelperFunctions.startApplication();
+			Thread.sleep(200);
+			while (!appStarted) {
+				try {
+					get("http://localhost:4567/");
+					appStarted = true;
+				} catch (Exception e){
+					Thread.sleep(200);
+				}
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/*----------------------------*/
 
 	@Given("^a task with title \"([^\"]*)\"$")
@@ -136,22 +159,22 @@ public class StepDefinitions {
 	@Given("^a task with description \"([^\"]*)\"$")
 	public void a_task_with_description(String description) throws Exception {
 		Todo todo = HelperFunctions.createTodo("TestStory10", false, description);
-		Context.getContext().set("task_id", "" + todo.id);
+		Context.getContext().set("task_id", todo.getId());
 	}
 
 	@When("^I update the task description to \"([^\"]*)\"$")
 	public void i_update_the_task_description_to(String new_description) throws Exception {
-		String task_id = Context.getContext().get("task_id");
+		int task_id = Context.getContext().get("task_id");
 		HelperFunctions.updateTodoDescription(task_id, new_description);
 	}
 
 	@Then("^the task has description \"([^\"]*)\"$")
 	public void the_task_has_description(String resulting_description) throws Exception {
-		String task_id = Context.getContext().get("task_id");
+		int task_id = Context.getContext().get("task_id");
 
 		Todo t = HelperFunctions.getTodoFromTodoId(task_id);
 
-		assertEquals(resulting_description, t.description);
+		assertEquals(resulting_description, t.getDescription());
 	}
 
 	/*---------------*/

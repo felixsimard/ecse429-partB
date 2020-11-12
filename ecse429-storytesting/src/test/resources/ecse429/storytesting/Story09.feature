@@ -3,6 +3,9 @@ Feature: Adjust priority of a task
   I want to adjust the priority of a task,
   to help better manage my time.
 
+  Background:
+    Given the application is running
+
   Scenario Outline: Adjust priority of a task
 
     Given a task with a priority "<initial_priority>"
