@@ -6,50 +6,40 @@ Feature: Task priority categorization
     Background:
         Given the application is running
 
-
+    # Normal flow
     Scenario Outline: Categorize task with a certain priority level
-        Given a task with title "<task_title>"
-        And a category with the "<existing_category_priority>"
+        Given a task with title "ECSE429"
+        And a category with the "<existing_priority>"
         When I link the task to the "<category_priority>"
-        Then the task is categorized with the "<resulting_priority>"
+        Then the task is categorized with the "<category_priority>"
         Examples:
-            | task_title | existing_category_priority | category_priority | resulting_priority |
-            | ECSE 429   | HIGH                       | HIGH              | HIGH               |
-            | ECSE 429   | MEDIUM                     | MEDIUM            | MEDIUM             |
-            | ECSE 429   | HIGH                       | MEDIUM            | none               |
+            | existing_priority | category_priority |
+            | HIGH              | HIGH              |
+            | MEDIUM            | MEDIUM            |
+            | LOW               | LOW               |
 
+    # Alternative Flow
+    Scenario Outline: Change category task with a certain priority level
+        Given a task with title "ECSE429"
+        And a category with the "<priority1>"
+        And a category with the "<priority2>"
+        When I link the task to the "<priority1>"
+        And I link the task to the "<priority1>"
+        Then the task is categorized with the "<priority2>"
+        Examples:
+            | priority1 | priority2 |
+            | HIGH      | MEDIUM    |
+            | MEDIUM    | LOW       |
+            | LOW       | HIGH      |
 
-#    # Normal Flow
-#    Scenario: Categorize task as HIGH priority
-#        Given a task containing
-#            | title            | completed | active | description              |
-#            | ECSE 429 part B  | false     | true   | Complete individual part |
-#        And a category containing
-#            | title   | description    |
-#            | HIGH    | High priority  |
-#        When I link the above task to the <level> priority category
-#        Then the task is categorized with the corresponding priority
-#
-#    # Alternate Flow
-#    Scenario: Change the category of a task from HIGH to MEDIUM
-#        Given a task containing
-#            | title            | completed | active | description              |
-#            | ECSE 429 part B  | false     | true   | Complete individual part |
-#        And multiple categories containing
-#            | title   | description     |
-#            | HIGH    | High priority   |
-#            | MEDIUM  | Medium priority |
-#        And a link between the above task and a high priority category
-#        When I link the above task to the <level> priority category
-#        Then the task is categorized with the corresponding priority
-#
-#    # Error flow
-#    Scenario: Categorize task with non existent category
-#        Given a task containing
-#            | title            | completed | active | description              |
-#            | ECSE 429 part B  | false     | true   | Complete individual part |
-#        And a category containing
-#            | title        | description         |
-#            | null         | null                |
-#        When I link the above task to the <level> priority category
-#        Then the task is categorized with the corresponding priority
+    # Error Flow
+    Scenario Outline: Categorize task with a non existent priority level
+        Given a task with title "ECSE429"
+        And a category with the "<priority1>"
+        When I link the task to the "<priority2>"
+        Then the returned statusCode is "<status_code>"
+        Examples:
+            | priority1 | priority2 | status_code |
+            | HIGH      | MEDIUM    | 400         |
+            | MEDIUM    | LOW       | 400         |
+            | LOW       | HIGH      | 400         |

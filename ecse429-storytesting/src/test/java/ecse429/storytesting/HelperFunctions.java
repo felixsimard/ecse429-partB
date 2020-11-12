@@ -4,6 +4,7 @@ import ecse429.storytesting.Model.Category;
 import ecse429.storytesting.Model.Project;
 import ecse429.storytesting.Model.Todo;
 import gherkin.deps.com.google.gson.Gson;
+import gherkin.deps.com.google.gson.*;
 import org.json.simple.JSONObject;
 
 import io.restassured.RestAssured;
@@ -114,7 +115,7 @@ public class HelperFunctions {
         return c;
     }
 
-    public static void linkTodoAndCategory(int todoId, int categoryId) {
+    public static int linkTodoAndCategory(int todoId, int categoryId) {
 
         // add the category to the todo
         RequestSpecification requestPost = RestAssured.given();
@@ -125,12 +126,8 @@ public class HelperFunctions {
                 .baseUri("http://localhost:4567");
 
 
-        requestPost
-                .post("/todos/" + todoId + "/categories")
-                .then()
-                .assertThat()
-                .statusCode(equalTo(STATUS_CODE_CREATED));
-
+        Response r = requestPost.post("/todos/" + todoId + "/categories");
+        return r.getStatusCode();
     }
 
     public static Category getCategoryFromTodoId(int todoId) {
@@ -142,8 +139,10 @@ public class HelperFunctions {
 
         Response response = request.get("/todos/" + todoId + "/categories");
 
-        Category categoryList = gson.fromJson(response.asString(), Category.class);
-        return categoryList;
+        JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
+        JsonArray arr = json.getAsJsonArray("categories");
+        Category c = gson.fromJson(arr.get(0).getAsJsonObject(), Category.class);
+        return c;
     }
 
     //---------TODOS------------//
