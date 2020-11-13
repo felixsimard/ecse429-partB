@@ -70,21 +70,22 @@ public class StepDefinitions {
 		Context.getContext().set("task_id", todo.getId());
 	}
 
-	@Given("^a category with the \"([^\"]*)\"$")
+	@Given("^a category with the title \"([^\"]*)\"$")
 	public void a_category_with_the_HIGH(String title) throws Exception {
 		Category category = HelperFunctions.createCategory(title, "");
 		Context.getContext().set("category_id", category.getId());
 	}
 
-	@When("^I link the task to the \"([^\"]*)\"$")
+	@When("^I link the task to the category with title \"([^\"]*)\"$")
 	public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
 		int task_id = Context.getContext().get("task_id");
 		int category_id = Context.getContext().get("category_id");
 
-		HelperFunctions.linkTodoAndCategory(task_id, category_id);
+		int statusCode = HelperFunctions.linkTodoAndCategory(task_id, category_id);
+		Context.getContext().set("status_code", statusCode);
 	}
 
-	@Then("^the task is categorized with the \"([^\"]*)\"")
+	@Then("^the task is categorized with the title \"([^\"]*)\"")
 	public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
 		int task_id = Context.getContext().get("task_id");
 
