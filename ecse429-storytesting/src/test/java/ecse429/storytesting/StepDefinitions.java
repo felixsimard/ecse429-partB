@@ -6,6 +6,7 @@ import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
 import cucumber.api.PendingException;
 import ecse429.storytesting.Model.Category;
+import ecse429.storytesting.Model.Id;
 import ecse429.storytesting.Model.Project;
 import ecse429.storytesting.Model.Todo;
 import io.restassured.RestAssured;
@@ -142,6 +143,13 @@ public class StepDefinitions {
 	@Then("^the returned statusCode is \"(\\d+)\"$")
 	public void the_returned_statusCode_is(int statusCode) throws Exception {
 		assertEquals(statusCode, Context.getContext().get("status_code"));
+	}
+
+	@Then("^the relationship between \"([^\"]*)\" and the course \"([^\"]*)\" is destroyed$")
+	public void the_relationship_between_and_the_course_is_destroyed(String taskTitle, String courseTitle) throws Exception {
+		Project courseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(courseTitle));
+		int todoId = Context.getContext().get(taskTitle);
+		assert(courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count() == 0);
 	}
 
 	//--------STORY05-------//
