@@ -154,6 +154,8 @@ public class StepDefinitions {
 	public void the_relationship_between_and_the_course_is_destroyed(String taskTitle, String courseTitle) throws Exception {
 		Project courseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(courseTitle));
 		int todoId = Context.getContext().get(taskTitle);
+
+		//confirm that the task is no longer linked to the course to do list
 		assert(courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count() == 0);
 	}
 
