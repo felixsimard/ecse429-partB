@@ -31,12 +31,27 @@ public class HelperFunctions {
     //--------APPLICATION----------//
 
     public static Process startApplication() {
+        System.out.println("Starting application...");
         Runtime rt = Runtime.getRuntime();
         try {
             process = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        boolean appStarted = false;
+        while (!appStarted) {
+            try {
+                get("http://localhost:4567/");
+                appStarted = true;
+            } catch (Exception e1){
+                try{
+                    Thread.sleep(200);
+                } catch (InterruptedException e2) {
+                    e2.printStackTrace();
+                }
+            }
+        }
+
         return process;
     }
 
@@ -222,7 +237,7 @@ public class HelperFunctions {
         return r.getStatusCode();
     }
 
-    public static Category getCategoryFromTodoId(int todoId) {
+    public static Category getCategoryFromTodoId(int todoId, String category_title) {
 
         RequestSpecification request = given()
                 .header("Content-Type", "application/json")
@@ -233,7 +248,16 @@ public class HelperFunctions {
 
         JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
         JsonArray arr = json.getAsJsonArray("categories");
-        Category c = gson.fromJson(arr.get(0).getAsJsonObject(), Category.class);
+        System.out.println("array size: " + arr.size());
+        Category c = null;
+        for (JsonElement e: arr){
+            JsonObject obj = e.getAsJsonObject();
+            System.out.println("title2 " + category_title);
+            System.out.println("title1 " + obj.get("title").getAsString());
+            if (category_title.equals(obj.get("title").getAsString())) {
+                c = gson.fromJson(obj, Category.class);
+            }
+        }
         return c;
     }
 

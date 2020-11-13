@@ -3,8 +3,8 @@ Feature: Adjust priority of a task
   I want to adjust the priority of a task,
   to help better manage my time.
 
-  Background:
-    Given the application is running
+#  Background:
+#    Given the application is running
 
   Scenario Outline: Adjust priority of a task
 

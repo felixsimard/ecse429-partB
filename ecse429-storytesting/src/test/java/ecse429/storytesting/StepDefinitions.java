@@ -69,32 +69,42 @@ public class StepDefinitions {
 	public void a_task_with_title(String title) throws Exception {
 		Todo todo = HelperFunctions.createTodo(title, false, "");
 		System.out.println("Created todo with id: " + todo.getId());
-		Context.getContext().set("task_id", todo.getId(), ContextElement.ElementType.TODO);
+		Context.getContext().set(todo.getTitle(), todo.getId(), ContextElement.ElementType.TODO);
 	}
 
 	@Given("^a category with the title \"([^\"]*)\"$")
 	public void a_category_with_the_HIGH(String title) throws Exception {
 		Category category = HelperFunctions.createCategory(title, "");
 		System.out.println("Created category with id: " + category.getId());
-		Context.getContext().set("category_id", category.getId(), ContextElement.ElementType.CATEGORY);
+		System.out.println(category.getTitle());
+		Context.getContext().set(category.getTitle(), category.getId(), ContextElement.ElementType.CATEGORY);
 	}
 
-	@When("^I link the task to the category with title \"([^\"]*)\"$")
-	public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
-		int task_id = Context.getContext().get("task_id");
-		int category_id = Context.getContext().get("category_id");
+	@When("^I delete the category with title \"([^\"]*)\"$")
+	public void i_delete_the_category_with_title(String title) throws Exception {
+		System.out.println(title);
+		int category_id = Context.getContext().get(title);
+
+		HelperFunctions.deleteCategory(category_id);
+	}
+
+	@When("^I link the task \"([^\"]*)\" to the category with title \"([^\"]*)\"$")
+	public void i_link_the_task_to_the_HIGH(String task_title, String category_title) throws Exception {
+		int task_id = Context.getContext().get(task_title);
+		int category_id = Context.getContext().get(category_title);
 
 		int statusCode = HelperFunctions.linkTodoAndCategory(task_id, category_id);
+		System.out.println("Linked " + task_title + " to " + category_title + " : " + statusCode);
 		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
 	}
 
-	@Then("^the task is categorized with the title \"([^\"]*)\"")
-	public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
-		int task_id = Context.getContext().get("task_id");
+	@Then("^the task \"([^\"]*)\" is categorized with the title \"([^\"]*)\"")
+	public void the_task_is_categorized_with_the_HIGH(String task_title, String category_title) throws Exception {
+		int task_id = Context.getContext().get(task_title);
 
-		Category c = HelperFunctions.getCategoryFromTodoId(task_id);
+		Category c = HelperFunctions.getCategoryFromTodoId(task_id, category_title);
 
-		assertEquals(priority, c.getTitle());
+		assertEquals(category_title, c.getTitle());
 	}
 
 	// -----------STORY04------------//
