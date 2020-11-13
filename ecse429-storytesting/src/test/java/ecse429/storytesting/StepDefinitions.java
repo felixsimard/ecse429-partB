@@ -193,6 +193,18 @@ public class StepDefinitions {
 		assertEquals(resulting_description, t.getDescription());
 	}
 
+	@Given("^a task with description \"([^\"]*)\"$")
+	public void a_task_with_description_and_id(String current_description) throws Exception {
+		Todo todo = HelperFunctions.createTodo("TestStory10", false, current_description);
+		Context.getContext().set("task_id", todo.getId());
+	}
+
+	@When("^I update the task \"([^\"]*)\" with description \"([^\"]*)\"$")
+	public void i_update_the_task_with_description(String non_existent_task_id, String other_task_description) throws Exception {
+		int statusCode = HelperFunctions.updateTodoDescriptionWithNonExistentTaskId(Integer.parseInt(non_existent_task_id), other_task_description);
+		Context.getContext().set("status_code", statusCode);
+	}
+
 	/*---------------*/
 
 

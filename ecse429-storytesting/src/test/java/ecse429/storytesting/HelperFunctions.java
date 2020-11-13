@@ -195,6 +195,18 @@ public class HelperFunctions {
     	return result;	
     }
 
+    public static int updateTodoDescriptionWithNonExistentTaskId(int non_existent_task_id, String other_description) {
+        RequestSpecification requestPost = RestAssured.given();
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("description", other_description);
+
+        requestPost.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
+
+        Response r = requestPost.put("/todos/"+non_existent_task_id);
+        return r.getStatusCode();
+    }
+
 
 
 }
