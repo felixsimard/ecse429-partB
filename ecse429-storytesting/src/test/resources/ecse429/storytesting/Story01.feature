@@ -4,12 +4,11 @@ Feature: Task priority categorization
     so I can better manage my time.
 
     Background:
-        Given the application is running
+        Given a task with title "ECSE429"
 
     # Normal flow
     Scenario Outline: Categorize task with a certain priority level
-        Given a task with title "ECSE429"
-        And a category with the title "<existing_priority>"
+        Given a category with the title "<existing_priority>"
         When I link the task to the category with title "<category_priority>"
         Then the task is categorized with the title "<category_priority>"
         Examples:
@@ -20,8 +19,7 @@ Feature: Task priority categorization
 
     # Alternative Flow
     Scenario Outline: Change category task with a certain priority level
-        Given a task with title "ECSE429"
-        And a category with the title "<priority1>"
+        Given a category with the title "<priority1>"
         And a category with the title "<priority2>"
         When I link the task to the category with title "<priority1>"
         And I link the task to the category with title "<priority1>"
@@ -34,8 +32,7 @@ Feature: Task priority categorization
 
     # Error Flow
     Scenario Outline: Categorize task with a non existent priority level
-        Given a task with title "ECSE429"
-        And a category with the title "<priority1>"
+        Given a category with the title "<priority1>"
         When I link the task to the category with title "<priority2>"
         Then the returned statusCode is "<status_code>"
         Examples:

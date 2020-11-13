@@ -45,6 +45,10 @@ public class HelperFunctions {
         if(process != null) process.destroy();
     }
 
+    public static void restoreInitialState() {
+        Context.getContext();
+    }
+
     //---------PROJECTS------------//
 
 
@@ -65,6 +69,12 @@ public class HelperFunctions {
 
         Project result = gson.fromJson(response.asString(), Project.class);
         return result;
+    }
+
+    public void deleteProject(int projectId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        request.delete("/projects/" + projectId);
     }
 
     public static void addTodoToProject(int todoId, int projectId) {
@@ -115,6 +125,12 @@ public class HelperFunctions {
         return c;
     }
 
+    public static void deleteCategory(int categoryId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        request.delete("/categories/" + categoryId);
+    }
+
     public static int linkTodoAndCategory(int todoId, int categoryId) {
 
         // add the category to the todo
@@ -161,6 +177,12 @@ public class HelperFunctions {
 
         Todo result = gson.fromJson(response.asString(), Todo.class);
         return result;
+    }
+
+    public static void deleteTodo(int todoId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        request.delete("/todos/" + todoId);
     }
     
     public static Todo getTodoFromTodoId(int todoId) {

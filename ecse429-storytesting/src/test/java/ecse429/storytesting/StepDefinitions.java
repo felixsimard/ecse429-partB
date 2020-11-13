@@ -67,27 +67,30 @@ public class StepDefinitions {
 	@Given("^a task with title \"([^\"]*)\"$")
 	public void a_task_with_title(String title) throws Exception {
 		Todo todo = HelperFunctions.createTodo(title, false, "");
-		Context.getContext().set("task_id", todo.getId());
+		ContextElement e = new ContextElement(todo.getId(), ContextElement.ElementType.TODO);
+		Context.getContext().set("task_id", e);
 	}
 
 	@Given("^a category with the title \"([^\"]*)\"$")
 	public void a_category_with_the_HIGH(String title) throws Exception {
 		Category category = HelperFunctions.createCategory(title, "");
-		Context.getContext().set("category_id", category.getId());
+		ContextElement e = new ContextElement(category.getId(), ContextElement.ElementType.TODO);
+		Context.getContext().set("category_id", e);
 	}
 
 	@When("^I link the task to the category with title \"([^\"]*)\"$")
 	public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
-		int task_id = Context.getContext().get("task_id");
-		int category_id = Context.getContext().get("category_id");
+		int task_id = Context.getContext().get("task_id").id;
+		int category_id = Context.getContext().get("category_id").id;
 
 		int statusCode = HelperFunctions.linkTodoAndCategory(task_id, category_id);
-		Context.getContext().set("status_code", statusCode);
+		ContextElement e = new ContextElement(statusCode, ContextElement.ElementType.OTHER);
+		Context.getContext().set("status_code", e);
 	}
 
 	@Then("^the task is categorized with the title \"([^\"]*)\"")
 	public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
-		int task_id = Context.getContext().get("task_id");
+		int task_id = Context.getContext().get("task_id").id;
 
 		Category c = HelperFunctions.getCategoryFromTodoId(task_id);
 
@@ -99,7 +102,8 @@ public class StepDefinitions {
 	@Given("^a course with title \"([^\"]*)\"$")
 	public void a_course_with_title(String courseTitle) throws Exception {
 		Project course = HelperFunctions.createProject(courseTitle, "", "", "");
-		Context.getContext().set(courseTitle, course.getId());
+		ContextElement e = new ContextElement(course.getId(), ContextElement.ElementType.PROJECT);
+		Context.getContext().set(courseTitle, e);
 	}
 
 	@Given("^created tasks$")
@@ -112,31 +116,38 @@ public class StepDefinitions {
 		Map<String, String> ass1Map = list.get(0);
 		assignment1 = HelperFunctions.createTodo(ass1Map.get("title"), Boolean.parseBoolean(ass1Map.get("doneStatus")),
 				ass1Map.get("description"));
-		Context.getContext().set(ass1Map.get("title"), assignment1.getId());
+
+		ContextElement e1 = new ContextElement(assignment1.getId(), ContextElement.ElementType.TODO);
+		Context.getContext().set(ass1Map.get("title"), e);
 
 		Map<String, String> ass2Map = list.get(1);
 		assignment2 = HelperFunctions.createTodo(ass2Map.get("title"), Boolean.parseBoolean(ass2Map.get("doneStatus")),
 				ass2Map.get("description"));
-		Context.getContext().set(ass2Map.get("title"), assignment2.getId());
+
+		ContextElement e2 = new ContextElement(assignment2.getId(), ContextElement.ElementType.TODO);
+		Context.getContext().set(ass2Map.get("title"), e2);
 
 		Map<String, String> hw1Map = list.get(2);
 		homework1 = HelperFunctions.createTodo(hw1Map.get("title"), Boolean.parseBoolean(hw1Map.get("doneStatus")),
 				hw1Map.get("description"));
-		Context.getContext().set(hw1Map.get("title"), homework1.getId());
+
+		ContextElement e3 = new ContextElement(homework1.getId(), ContextElement.ElementType.TODO);
+		Context.getContext().set(hw1Map.get("title"), e3);
 
 	}
 
 	@Given("^\"([^\"]*)\" and \"([^\"]*)\" are added to the course \"([^\"]*)\" todo list$")
 	public void and_are_added_to_the_course_todo_list(String ass1, String ass2, String courseTitle) throws Exception {
-		HelperFunctions.addTodoToProject(Context.getContext().get(ass1), Context.getContext().get(courseTitle));
-		HelperFunctions.addTodoToProject(Context.getContext().get(ass2), Context.getContext().get(courseTitle));
+		HelperFunctions.addTodoToProject(Context.getContext().get(ass1).id, Context.getContext().get(courseTitle).id);
+		HelperFunctions.addTodoToProject(Context.getContext().get(ass2).id, Context.getContext().get(courseTitle).id);
 	}
 
 	@When("^I remove \"([^\"]*)\" from the course \"([^\"]*)\" todo list$")
 	public void i_remove_from_the_course_todo_list(String todoTitle, String courseTitle) throws Exception {
-		int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(todoTitle),
-				Context.getContext().get(courseTitle));
-		Context.getContext().set("status_code", statusCode);
+		int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(todoTitle).id,
+				Context.getContext().get(courseTitle).id);
+		ContextElement e = new ContextElement(statusCode, ContextElement.ElementType.OTHER)
+		Context.getContext().set("status_code", e);
 	}
 
 	@Then("^the returned statusCode is \"(\\d+)\"$")

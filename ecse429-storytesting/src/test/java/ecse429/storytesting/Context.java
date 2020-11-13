@@ -10,10 +10,10 @@ public class Context {
 
     private static Context instance = null;
 
-    private Map<String, Integer> variables;
+    private Map<String, ContextElement> variables;
 
     public Context() {
-        this.variables = new HashMap<String, Integer>();
+        this.variables = new HashMap<String, ContextElement>();
     }
 
     public static Context getContext() {
@@ -24,14 +24,15 @@ public class Context {
     }
 
     public static void resetContext() {
+        instance.variables.clear();
         instance = null;
     }
 
-    public int get(String key) {
+    public ContextElement get(String key) {
         return this.variables.get(key);
     }
 
-    public void set(String key, int value) {
+    public void set(String key, ContextElement value) {
         this.variables.put(key, value);
     }
 
