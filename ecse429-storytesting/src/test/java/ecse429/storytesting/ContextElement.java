@@ -1,6 +1,9 @@
 package ecse429.storytesting;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ContextElement {
 
     public int id;
