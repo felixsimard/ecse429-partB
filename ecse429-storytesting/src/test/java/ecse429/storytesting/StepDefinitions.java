@@ -6,6 +6,7 @@ import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
 import cucumber.api.PendingException;
 import ecse429.storytesting.Model.Category;
+import ecse429.storytesting.Model.Id;
 import ecse429.storytesting.Model.Project;
 import ecse429.storytesting.Model.Todo;
 import io.restassured.RestAssured;
@@ -155,6 +156,13 @@ public class StepDefinitions {
 		assertEquals(statusCode, Context.getContext().get("status_code"));
 	}
 
+	@Then("^the relationship between \"([^\"]*)\" and the course \"([^\"]*)\" is destroyed$")
+	public void the_relationship_between_and_the_course_is_destroyed(String taskTitle, String courseTitle) throws Exception {
+		Project courseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(courseTitle));
+		int todoId = Context.getContext().get(taskTitle);
+		assert(courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count() == 0);
+	}
+
 	//--------STORY05-------//
 
 	@When("^I create a new to do list with title \"([^\"]*)\", completed status \"([^\"]*)\", active status \"([^\"]*)\", and description \"([^\"]*)\"$")
@@ -202,6 +210,18 @@ public class StepDefinitions {
 		Todo t = HelperFunctions.getTodoFromTodoId(task_id);
 
 		assertEquals(resulting_description, t.getDescription());
+	}
+
+	@Given("^a task with description \"([^\"]*)\"$")
+	public void a_task_with_description_and_id(String current_description) throws Exception {
+		Todo todo = HelperFunctions.createTodo("TestStory10", false, current_description);
+		Context.getContext().set("task_id", todo.getId());
+	}
+
+	@When("^I update the task \"([^\"]*)\" with description \"([^\"]*)\"$")
+	public void i_update_the_task_with_description(String non_existent_task_id, String other_task_description) throws Exception {
+		int statusCode = HelperFunctions.updateTodoDescriptionWithNonExistentTaskId(Integer.parseInt(non_existent_task_id), other_task_description);
+		Context.getContext().set("status_code", statusCode);
 	}
 
 	/*---------------*/

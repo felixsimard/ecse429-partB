@@ -1,8 +1,6 @@
 package ecse429.storytesting;
 
-import ecse429.storytesting.Model.Category;
-import ecse429.storytesting.Model.Project;
-import ecse429.storytesting.Model.Todo;
+import ecse429.storytesting.Model.*;
 import gherkin.deps.com.google.gson.Gson;
 import gherkin.deps.com.google.gson.*;
 import org.json.simple.JSONObject;
@@ -16,7 +14,6 @@ import java.io.IOException;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 
 public class HelperFunctions {
@@ -51,6 +48,15 @@ public class HelperFunctions {
 
     //---------PROJECTS------------//
 
+
+    public static Project getProjectByProjectId(int projectId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        Response response = request.get("/projects/" + projectId);
+        String s = response.asString();
+        ProjectsResponse results = gson.fromJson(response.asString(), ProjectsResponse.class);
+        return results.getProjects().get(0);
+    }
 
     public static Project createProject(String title, String completed, String active, String description) {
         RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
@@ -193,11 +199,9 @@ public class HelperFunctions {
                 .baseUri("http://localhost:4567");
 
         Response response = request.get("/todos/" + todoId);
-        
-        Todo todo = gson.fromJson(response.asString(), Todo.class);
-        
-        return todo;
-    	
+
+        TodosResponse todos = gson.fromJson(response.asString(), TodosResponse.class);
+        return todos.getTodos().get(0);
     }
     
     public static Todo updateTodoDescription(int todoId, String new_description) {
@@ -215,6 +219,18 @@ public class HelperFunctions {
     	Todo result = gson.fromJson(response.asString(), Todo.class);
     	
     	return result;	
+    }
+
+    public static int updateTodoDescriptionWithNonExistentTaskId(int non_existent_task_id, String other_description) {
+        RequestSpecification requestPost = RestAssured.given();
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("description", other_description);
+
+        requestPost.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
+
+        Response r = requestPost.put("/todos/"+non_existent_task_id);
+        return r.getStatusCode();
     }
 
 

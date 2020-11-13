@@ -18,6 +18,7 @@ Feature: Remove task from course to do list
     And "assignment1" and "assignment2" are added to the course "gherkin101" todo list
     When I remove "<taskTitle>" from the course "gherkin101" todo list
     Then the returned statusCode is "<statusCode>"
+    And the relationship between "<taskTitle>" and the course "gherkin101" is destroyed
 
     Examples:
       | taskTitle        | statusCode |
