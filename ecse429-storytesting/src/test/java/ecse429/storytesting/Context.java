@@ -94,7 +94,7 @@ public class Context {
         it.remove(); // avoids a ConcurrentModificationException
 
         Iterator<Map.Entry<String, List<ContextElement>>> it2 = this.listVariables.entrySet().iterator();
-        while (it.hasNext()) {
+        while (it2.hasNext()) {
             Map.Entry<String, List<ContextElement>> pair = it2.next();
             for(ContextElement e: pair.getValue()) {
                 if (e.type == ContextElement.ElementType.TODO ||
@@ -105,7 +105,6 @@ public class Context {
                 }
             }
         }
-        it.remove();
         return result;
     }
 
