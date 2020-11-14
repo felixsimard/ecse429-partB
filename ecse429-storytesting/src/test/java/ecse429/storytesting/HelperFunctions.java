@@ -1,13 +1,11 @@
 package ecse429.storytesting;
 
-import ecse429.storytesting.Model.*;
-import gherkin.deps.com.google.gson.Gson;
+import ecse429.storytesting.model.*;
 import gherkin.deps.com.google.gson.*;
-import org.json.simple.JSONObject;
-
 import io.restassured.RestAssured;
-import io.restassured.response.*;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,8 +42,8 @@ public class HelperFunctions {
             try {
                 get("http://localhost:4567/");
                 appStarted = true;
-            } catch (Exception e1){
-                try{
+            } catch (Exception e1) {
+                try {
                     Thread.sleep(200);
                 } catch (InterruptedException e2) {
                     e2.printStackTrace();
@@ -57,22 +55,20 @@ public class HelperFunctions {
     }
 
     public static void stopApplication() {
-        if(process != null) process.destroy();
+        if (process != null) process.destroy();
     }
 
     public static void restoreInitialState() {
         List<ContextElement> list = Context.getContext().getAllElementsToDelete();
 
-        for(ContextElement e: list) {
+        for (ContextElement e : list) {
             if (e.type == ContextElement.ElementType.PROJECT) {
                 deleteProject(e.id);
                 System.out.println("deleted project with id: " + e.id);
-            }
-            else if (e.type == ContextElement.ElementType.TODO) {
+            } else if (e.type == ContextElement.ElementType.TODO) {
                 System.out.println("deleted todo with id: " + e.id);
                 deleteTodo(e.id);
-            }
-            else if (e.type == ContextElement.ElementType.CATEGORY) {
+            } else if (e.type == ContextElement.ElementType.CATEGORY) {
                 System.out.println("deleted category with id: " + e.id);
                 deleteCategory(e.id);
             }
@@ -102,12 +98,29 @@ public class HelperFunctions {
 
     //---------PROJECTS------------//
 
+    public static List<Project> getAllProjects() {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        Response response = request.get("/projects");
+
+        ProjectsResponse results = gson.fromJson(response.asString(), ProjectsResponse.class);
+        return results.getProjects();
+    }
 
     public static Project getProjectByProjectId(int projectId) {
         RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
 
         Response response = request.get("/projects/" + projectId);
-        String s = response.asString();
+
+        int statusCode = response.getStatusCode();
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+            return null;
+        }
+
         ProjectsResponse results = gson.fromJson(response.asString(), ProjectsResponse.class);
         return results.getProjects().get(0);
     }
@@ -116,45 +129,60 @@ public class HelperFunctions {
         RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
 
         JSONObject requestParams = new JSONObject();
-        if(!title.equals("")) requestParams.put("title", title);
-        if(!completed.equals("")) requestParams.put("completed", completed);
-        if(!active.equals("")) requestParams.put("active", active);
-        if(!description.equals("")) requestParams.put("description", description);
+        if (!title.equals("")) requestParams.put("title", title);
+        if (!completed.equals(""))
+            requestParams.put("completed", getBoolean(completed) != null ? getBoolean(completed) : completed);
+        if (!active.equals("")) requestParams.put("active", getBoolean(active) != null ? getBoolean(active) : active);
+        if (!description.equals("")) requestParams.put("description", description);
 
         request.body(requestParams.toJSONString());
 
         Response response = request.post("/projects");
 
-        Context.getContext().set("status_code", response.getStatusCode(), ContextElement.ElementType.OTHER);
+        int statusCode = response.getStatusCode();
+
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        if (statusCode / 100 == 4) return null;
 
         Project result = gson.fromJson(response.asString(), Project.class);
         return result;
     }
 
-    public static List<Project> getAllProjects() {
-        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
-
-        Response response = request.get("/projects");
-
-        JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
-        JsonArray arr = json.getAsJsonArray("projects");
-
-        List<Project> result = new ArrayList<>();
-        for (JsonElement obj: arr) {
-            Project proj = gson.fromJson(obj.getAsJsonObject(), Project.class);
-            result.add(proj);
-        }
-        return result;
-    }
+//    public static List<Project> getAllProjects() {
+//        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+//
+//        Response response = request.get("/projects");
+//
+//        JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
+//        JsonArray arr = json.getAsJsonArray("projects");
+//
+//        List<Project> result = new ArrayList<>();
+//        for (JsonElement obj: arr) {
+//            Project proj = gson.fromJson(obj.getAsJsonObject(), Project.class);
+//            result.add(proj);
+//        }
+//        return result;
+//    }
 
     public static void deleteProject(int projectId) {
         RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
 
-        request.delete("/projects/" + projectId);
+        Response response = request.delete("/projects/" + projectId);
+
+        int statusCode = response.getStatusCode();
+
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+        }
     }
 
     public static void addTodoToProject(int todoId, int projectId) {
-        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");;
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+        ;
 
         JSONObject requestParams = new JSONObject();
         requestParams.put("id", "" + todoId);
@@ -170,14 +198,20 @@ public class HelperFunctions {
         Response response = request.delete("/projects/" + projectId + "/tasks/" + todoId);
 
         return response.getStatusCode();
+    }
 
+    public static int deleteProjectFromTodo(int todoId, int projectId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        Response response = request.delete("/todos/" + todoId + "/tasksof/" + projectId);
+
+        return response.getStatusCode();
     }
 
     //---------CATEGORIES------------//
 
 
-    public static Category createCategory(String title, String description)
-    {
+    public static Category createCategory(String title, String description) {
         JSONObject requestBody = new JSONObject();
         requestBody.put("title", title);
         requestBody.put("description", description);
@@ -216,7 +250,7 @@ public class HelperFunctions {
         JsonArray arr = json.getAsJsonArray("categories");
 
         List<Category> result = new ArrayList<>();
-        for (JsonElement obj: arr) {
+        for (JsonElement obj : arr) {
             Category cat = gson.fromJson(obj.getAsJsonObject(), Category.class);
             result.add(cat);
         }
@@ -251,7 +285,7 @@ public class HelperFunctions {
         JsonArray arr = json.getAsJsonArray("categories");
         System.out.println("array size: " + arr.size());
         Category c = null;
-        for (JsonElement e: arr){
+        for (JsonElement e : arr) {
             JsonObject obj = e.getAsJsonObject();
             System.out.println("title2 " + category_title);
             System.out.println("title1 " + obj.get("title").getAsString());
@@ -289,7 +323,7 @@ public class HelperFunctions {
         JsonArray arr = json.getAsJsonArray("todos");
 
         List<Todo> result = new ArrayList<>();
-        for (JsonElement obj: arr) {
+        for (JsonElement obj : arr) {
             Todo todo = gson.fromJson(obj.getAsJsonObject(), Todo.class);
             result.add(todo);
         }
@@ -301,10 +335,10 @@ public class HelperFunctions {
 
         request.delete("/todos/" + todoId);
     }
-    
+
     public static Todo getTodoFromTodoId(int todoId) {
-    	
-    	RequestSpecification request = given()
+
+        RequestSpecification request = given()
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .baseUri("http://localhost:4567");
@@ -314,22 +348,22 @@ public class HelperFunctions {
         TodosResponse todos = gson.fromJson(response.asString(), TodosResponse.class);
         return todos.getTodos().get(0);
     }
-    
+
     public static Todo updateTodoDescription(int todoId, String new_description) {
-    	
-    	RequestSpecification request = RestAssured.given();
-    	
-    	JSONObject requestParams = new JSONObject();
-    	requestParams.put("description", new_description);
-    	
-    	request.body(requestParams.toJSONString())
-    	.baseUri("http://localhost:4567");
-    	
-    	Response response = request.put("/todos/"+todoId);
-    	
-    	Todo result = gson.fromJson(response.asString(), Todo.class);
-    	
-    	return result;	
+
+        RequestSpecification request = RestAssured.given();
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("description", new_description);
+
+        request.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
+
+        Response response = request.put("/todos/" + todoId);
+
+        Todo result = gson.fromJson(response.asString(), Todo.class);
+
+        return result;
     }
 
     public static int updateTodoDescriptionWithNonExistentTaskId(int non_existent_task_id, String other_description) {
@@ -340,22 +374,22 @@ public class HelperFunctions {
         requestPost.body(requestParams.toJSONString())
                 .baseUri("http://localhost:4567");
 
-        Response r = requestPost.put("/todos/"+non_existent_task_id);
+        Response r = requestPost.put("/todos/" + non_existent_task_id);
         return r.getStatusCode();
     }
 
-    public static List<Integer> getAllIncompleteTasksOfProject(int projectId){
+    public static List<Integer> getAllIncompleteTasksOfProject(int projectId) {
         RequestSpecification requestPost = RestAssured.given();
         ArrayList list;
         try {
             list = requestPost.get(String.format("http://localhost:4567/projects/%d/tasks?doneStatus=false", projectId))
-                .then()
-                .extract()
-                .body()
-                .jsonPath()
-                .get("todos.id");
+                    .then()
+                    .extract()
+                    .body()
+                    .jsonPath()
+                    .get("todos.id");
             System.out.println("Here: " + list.toString());
-        }catch (Exception e){
+        } catch (Exception e) {
             list = new ArrayList<>();
             System.out.println(e);
         }
@@ -365,5 +399,20 @@ public class HelperFunctions {
         return list;
     }
 
+
+    private static Boolean getBoolean(String s) {
+        Boolean result;
+        switch (s) {
+            case "false":
+                result = false;
+                break;
+            case "true":
+                result = true;
+                break;
+            default:
+                result = null;
+        }
+        return result;
+    }
 
 }

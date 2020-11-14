@@ -1,4 +1,4 @@
-package ecse429.storytesting.Model;
+package ecse429.storytesting.model;
 
 class Category(var id: Int,
            var title: String,
