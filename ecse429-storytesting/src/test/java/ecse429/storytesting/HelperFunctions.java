@@ -10,6 +10,10 @@ import io.restassured.response.*;
 import io.restassured.specification.RequestSpecification;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
@@ -211,6 +215,26 @@ public class HelperFunctions {
         return r.getStatusCode();
     }
 
+    public static List<Integer> getAllIncompleteTasksOfProject(int projectId){
+        RequestSpecification requestPost = RestAssured.given();
+        ArrayList list;
+        try {
+            list = requestPost.get(String.format("http://localhost:4567/projects/%d/tasks?doneStatus=false", projectId))
+                .then()
+                .extract()
+                .body()
+                .jsonPath()
+                .get("todos.id");
+            System.out.println("Here: " + list.toString());
+        }catch (Exception e){
+            list = new ArrayList<>();
+            System.out.println(e);
+        }
+
+        list.forEach((n) -> n = Integer.parseInt((String) n));
+        Collections.sort(list);
+        return list;
+    }
 
 
 }

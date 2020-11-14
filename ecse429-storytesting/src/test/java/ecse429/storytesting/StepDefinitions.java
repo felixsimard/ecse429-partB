@@ -1,6 +1,6 @@
 package ecse429.storytesting;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+//import com.sun.org.apache.xpath.internal.operations.Bool;
 import cucumber.api.DataTable;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.*;
@@ -11,34 +11,19 @@ import ecse429.storytesting.Model.Project;
 import ecse429.storytesting.Model.Todo;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
+import org.junit.Assert;
 
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class StepDefinitions {
-
-	/*------ STORY EXAMPLE ------*/
-//	private String today;
-//	private String actualAnswer;
-//
-//	@Given("^today is \"([^\"]*)\"$")
-//	public void today_is(String today) {
-//		this.today = today;
-//	}
-//
-//	@When("^I ask whether it's Friday yet$")
-//	public void i_ask_whether_it_s_Friday_yet() {
-//		actualAnswer = IsItFriday.isItFriday(today);
-//	}
-//
-//	@Then("^I should be told \"([^\"]*)\"$")
-//	public void i_should_be_told(String expectedAnswer) {
-//		assertEquals(expectedAnswer, actualAnswer);
-//	}
 
 	//--------BACKGROUND-----------//
 
@@ -169,6 +154,80 @@ public class StepDefinitions {
 
 
 	/*--- Story7 ---*/
+
+	/**
+	 * This method will create a project with title equal to the input and store it in the Context variables map.
+	 *
+	 * @param projectTitle - The title of the project to be created.
+	 */
+	@Given("^a project with title \"([^\"]*)\"$")
+	public void aProjectWithTitle(String projectTitle) {
+		Project newProject = HelperFunctions.createProject(projectTitle,"","","");
+		Context.getContext().set("story7_project", newProject.getId());
+	}
+
+	/**
+	 * This method will create a certain amount of tasks with doneStatus=false connected to the project with name = "story7_project".
+	 * The id's of the created tasks are then stored in a list in the Context listVariables Map with key="story7_falseTasks"
+	 *
+	 * @param arg0 - Number of tasks to be created with done Status false
+	 */
+	@And("^an initial set of tasks connected to the project with \"([^\"]*)\" tasks that have false as doneStatus value$")
+	public void anInitialSetOfTasksConnectedToTheProjectWithTasksThatHaveFalseAsDoneStatusValue(String arg0) {
+		int projectID = Context.getContext().get("story7_project");
+		int numberOfTasks = Integer.parseInt(arg0);
+		List<String> list = new ArrayList<String>();
+
+		while(numberOfTasks > 0){
+			Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done", numberOfTasks),false,"");
+			list.add((String.valueOf(task.getId())));
+			HelperFunctions.addTodoToProject(task.getId(), projectID);
+			numberOfTasks--;
+		}
+		Collections.sort(list);
+		Context.getContext().setListVariables("story7_falseTasks", list);
+	}
+
+	/**
+	 * This method will create a certain amount of tasks with doneStatus=true connected to the project with name = "story7_project".
+	 * The id's of the created tasks are then stored in a list in the Context listVariables Map with key="story7_trueTasks"
+	 *
+	 * @param arg0 - Number of tasks to be created with done Status true
+	 */
+	@And("^another set of tasks connected to the project with \"([^\"]*)\" tasks that have true as doneStatus value$")
+	public void anotherSetOfTasksConnectedToTheProjectWithTasksThatHaveTrueAsDoneStatusValue(String arg0) {
+		int projectID = Context.getContext().get("story7_project");
+		int numberOfTasks = Integer.parseInt(arg0);
+		List<String> list = new ArrayList<String>();
+
+		while(numberOfTasks > 0){
+			Todo task = HelperFunctions.createTodo(String.format("Task %d that is done", numberOfTasks),true,"");
+			list.add((String.valueOf(task.getId())));
+			HelperFunctions.addTodoToProject(task.getId(), projectID);
+			numberOfTasks--;
+		}
+		Collections.sort(list);
+		Context.getContext().setListVariables("story7_trueTasks", list);
+	}
+
+	/**
+	 * This method queries the number of tasks that are incomplete from the project with title="story7_project" and stores all ids of task
+	 * in a list in the context
+	 *
+	 */
+	@When("^I query the incomplete tasks for this project$")
+	public void iQueryTheIncompleteTasksForThisProject() {
+		int projectID = Context.getContext().get("story7_project");
+		List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
+		Context.getContext().setListVariables("story7_queryList", list);
+	}
+
+	@Then("^a set is returned which is identical to the initial set of tasks with value false for doneStatus and has \"([^\"]*)\" elements\\.$")
+	public void aSetIsReturnedWhichIsIdenticalToTheInitialSetOfTasksWithValueFalseForDoneStatusAndHasElements(String arg0) {
+		List<Integer> listFromQuery = Context.getContext().getListVariables("story7_queryList");
+		List<Integer> actualIncompleteTasks = Context.getContext().getListVariables("story7_falseTasks");
+		assertArrayEquals(listFromQuery.toArray(),actualIncompleteTasks.toArray());
+	}
 
 	/*---------------*/
 

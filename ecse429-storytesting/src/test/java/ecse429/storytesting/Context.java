@@ -1,6 +1,7 @@
 package ecse429.storytesting;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,8 +13,11 @@ public class Context {
 
     private Map<String, Integer> variables;
 
+    private Map<String, List> listVariables;
+
     public Context() {
         this.variables = new HashMap<String, Integer>();
+        this.listVariables = new HashMap<String, List>();
     }
 
     public static Context getContext() {
@@ -33,6 +37,14 @@ public class Context {
 
     public void set(String key, int value) {
         this.variables.put(key, value);
+    }
+
+    public List getListVariables(String key) {
+        return this.listVariables.get(key);
+    }
+
+    public void setListVariables(String key, List value) {
+        this.listVariables.put(key, value);
     }
 
 }
