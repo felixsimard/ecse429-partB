@@ -3,6 +3,7 @@ package ecse429.storytesting;
 //import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -240,9 +241,7 @@ public class StepDefinitions {
 
 
 
-
-    /*--- Story7 ---*/
-
+    /*--- Story7 - and - Story8 ---*/
     /**
      * This method will create a project with title equal to the input and store it in the Context variables map.
      *
@@ -250,11 +249,11 @@ public class StepDefinitions {
      */
     @Given("^a project with title \"([^\"]*)\"$")
     public void aProjectWithTitle(String projectTitle) {
-        Project newProject = HelperFunctions.createProject(projectTitle, "", "", "");
-        if (newProject != null) {
-            Context.getContext().set("story7_project", newProject.getId(), ContextElement.ElementType.PROJECT);
-        }
+        Project newProject = HelperFunctions.createProject(projectTitle,"","","");
+        Context.getContext().set("story7_project", newProject.getId(),ContextElement.ElementType.PROJECT);
     }
+
+    /*--- Story7 ---*/
 
     /**
      * This method will create a certain amount of tasks with doneStatus=false connected to the project with name = "story7_project".
@@ -268,8 +267,8 @@ public class StepDefinitions {
         int numberOfTasks = Integer.parseInt(arg0);
         List<String> list = new ArrayList<String>();
 
-        while (numberOfTasks > 0) {
-            Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done", numberOfTasks), false, "");
+        while(numberOfTasks > 0){
+            Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done", numberOfTasks),false,"");
             list.add((String.valueOf(task.getId())));
             HelperFunctions.addTodoToProject(task.getId(), projectID);
             numberOfTasks--;
@@ -290,8 +289,8 @@ public class StepDefinitions {
         int numberOfTasks = Integer.parseInt(arg0);
         List<String> list = new ArrayList<String>();
 
-        while (numberOfTasks > 0) {
-            Todo task = HelperFunctions.createTodo(String.format("Task %d that is done", numberOfTasks), true, "");
+        while(numberOfTasks > 0){
+            Todo task = HelperFunctions.createTodo(String.format("Task %d that is done", numberOfTasks),true,"");
             list.add((String.valueOf(task.getId())));
             HelperFunctions.addTodoToProject(task.getId(), projectID);
             numberOfTasks--;
@@ -303,6 +302,7 @@ public class StepDefinitions {
     /**
      * This method queries the number of tasks that are incomplete from the project with title="story7_project" and stores all ids of task
      * in a list in the context
+     *
      */
     @When("^I query the incomplete tasks for this project$")
     public void iQueryTheIncompleteTasksForThisProject() {
@@ -318,14 +318,68 @@ public class StepDefinitions {
         assertArrayEquals(listFromQuery.toArray(), actualIncompleteTasks.toArray());
     }
 
+    /*--------Error Flow--------*/
+
+    @Given("^a non existent project title \"([^\"]*)\"$")
+    public void aNonExistentProjectTitle(String arg0)  {
+        // nothing to do here
+    }
+
+    @Then("^an error message is returned$")
+    public void anErrorMessageIsReturned() {
+    }
+
+    /*---------------*/
+
     /*---------------*/
 
     /*--- Story8 ---*/
+    /*--- Note that some of step definitions for story 8 are reused from story 7 and story 1 ---*/
+
+//	/**
+//	 * Will create 2 false tasks with doneStatus=false and connect them to the category of the input string
+//	 * @param priority
+//	 */
+//	@And("^an initial set of tasks connected to the project that have false as doneStatus value, and are connected to the \"([^\"]*)\"$")
+//	public void anInitialSetOfTasksConnectedToTheProjectThatHaveFalseAsDoneStatusValueAndAreConnectedToThe(String priority) throws Throwable {
+//		int projectID = Context.getContext().get("story7_project");
+//		List<String> list = new ArrayList<String>();
+//		// create the tasks
+//		Todo task1 = HelperFunctions.createTodo("Task1 story8",false,"");
+//		Todo task2 = HelperFunctions.createTodo("Task2 story8",false,"");
+//		// add tasks to list
+//		list.add((String.valueOf(task1.getId())));
+//		list.add((String.valueOf(task2.getId())));
+//		// add tasks to project
+//		HelperFunctions.addTodoToProject(task1.getId(), projectID);
+//		HelperFunctions.addTodoToProject(task2.getId(), projectID);
+//		// add task to category HIGH priority
+//		HelperFunctions.linkTodoAndCategory(task1.getId(), )
+//
+//		Collections.sort(list);
+//		Context.getContext().setListVariables("story7_trueTasks", list);
+//	}
+
+    @And("^an initial set of tasks connected to the project that have false as doneStatus value, and are not connected to the \"([^\"]*)\"$")
+    public void anInitialSetOfTasksConnectedToTheProjectThatHaveFalseAsDoneStatusValueAndAreNotConnectedToThe(String arg0) throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+    @When("^I query the incomplete tasks for this project with category HIGH priority and doneStatus=false$")
+    public void iQueryTheIncompleteTasksForThisProjectWithCategoryHIGHPriorityAndDoneStatusFalse() {
+
+    }
+
+    @Then("^a set is returned that is identical to the initial tasks with doneStatus=false and are connected to the \"([^\"]*)\"$")
+    public void aSetIsReturnedThatIsIdenticalToTheInitialTasksWithDoneStatusFalseAndAreConnectedToThe(String arg0) throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
 
     /*---------------*/
 
     /*--- Story9 ---*/
-
     /*---------------*/
 
     /*--- Story10 ---*/

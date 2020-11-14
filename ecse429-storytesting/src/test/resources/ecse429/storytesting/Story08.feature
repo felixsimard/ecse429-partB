@@ -1,3 +1,5 @@
+@QueryIncompleteHighPriorityTasks
+
 Feature: Query all incomplete HIGH priority tasks
   As a student,
   I query all incomplete HIGH priority tasks from all my classes,
@@ -6,15 +8,18 @@ Feature: Query all incomplete HIGH priority tasks
 #  Background:
 #    Given the application is running
 
+  # Normal Flow
   Scenario Outline: Query all incomplete HIGH priority tasks
 
     Given a project with title "<class>"
-    And an initial set, "<initial_set>", of tasks with value false for doneStatus, and have category HIGH priority
-    When I query the incomplete tasks for this project with category HIGH priority
-    Then a set, "<returned_set>", is returned which is identical to the initial set.
+    And a category with the title HIGH
+    And an initial set of tasks connected to the project that have false as doneStatus value, and are connected to the HIGH category
+    And an initial set of tasks connected to the project that have false as doneStatus value, and are not connected to the HIGH category
+    When I query the incomplete tasks for this project with category HIGH priority and doneStatus=false
+    Then a set is returned that is identical to the initial tasks with doneStatus=false and are connected to the "<existing_priority>"
 
     Examples:
-      | class      |   initial_set   |  returned_set   |
-      | ECSE 429   | 3               | 3               |
-      | ECSE 428   | 1               | 1               |
-      | COMP 310   | 0               | 0               |
+      | class      |   existing_priority   |
+      | ECSE 429   | HIGH                  |
+      | ECSE 428   | MEDIUM                |
+      | COMP 310   | LOW                   |

@@ -8,6 +8,7 @@ Feature: Query incomplete tasks
 #  Background:
 #    Given the application is running
 
+  # Normal FLow
   Scenario Outline: Query incomplete tasks
 
     Given a project with title "<class>"
@@ -22,3 +23,27 @@ Feature: Query incomplete tasks
       | ECSE 428   | 1                        | 0                        |  1                  |
       | COMP 310   | 0                        | 1                        |  0                  |
       | COMP 310   | 0                        | 0                        |  0                  |
+
+#  # Alternate Flow
+#  Scenario Outline: Query incomplete tasks from non existant project
+#
+#    Given a non existent project title "<class>"
+#    And an initial set of tasks connected to the project with "<num_initial_set_false>" tasks that have false as doneStatus value
+#    And another set of tasks connected to the project with "<num_initial_set_true>" tasks that have true as doneStatus value
+#    When I query the incomplete tasks for this project
+#    Then an error message is returned
+#
+#    Examples:
+#
+  # Error Flow
+  Scenario Outline: Query incomplete tasks from non existent project
+
+    Given a non existent project title "<class>"
+    When I query the incomplete tasks for this project
+    Then an error message is returned
+
+    Examples:
+      | class      |
+      | ECSE 427   |
+      | ECSE 428   |
+      | ECSE 429   |
