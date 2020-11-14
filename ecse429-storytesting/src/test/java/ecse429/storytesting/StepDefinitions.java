@@ -275,7 +275,7 @@ public class StepDefinitions {
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story7_falseTasks", list);
+        Context.getContext().setListVariables("story7_falseTasks", list, ContextElement.ElementType.TODO);
     }
 
     /**
@@ -297,7 +297,7 @@ public class StepDefinitions {
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story7_trueTasks", list);
+        Context.getContext().setListVariables("story7_trueTasks", list, ContextElement.ElementType.TODO);
     }
 
     /**
@@ -307,14 +307,14 @@ public class StepDefinitions {
     @When("^I query the incomplete tasks for this project$")
     public void iQueryTheIncompleteTasksForThisProject() {
         int projectID = Context.getContext().get("story7_project");
-        List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
-        Context.getContext().setListVariables("story7_queryList", list);
+        List<String> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
+        Context.getContext().setListVariables("story7_queryList", list, ContextElement.ElementType.TODO);
     }
 
     @Then("^a set is returned which is identical to the initial set of tasks with value false for doneStatus and has \"([^\"]*)\" elements\\.$")
     public void aSetIsReturnedWhichIsIdenticalToTheInitialSetOfTasksWithValueFalseForDoneStatusAndHasElements(String arg0) {
-        List<Integer> listFromQuery = Context.getContext().getListVariables("story7_queryList");
-        List<Integer> actualIncompleteTasks = Context.getContext().getListVariables("story7_falseTasks");
+        List<String> listFromQuery = Context.getContext().getListVariables("story7_queryList");
+        List<String> actualIncompleteTasks = Context.getContext().getListVariables("story7_falseTasks");
         assertArrayEquals(listFromQuery.toArray(), actualIncompleteTasks.toArray());
     }
 

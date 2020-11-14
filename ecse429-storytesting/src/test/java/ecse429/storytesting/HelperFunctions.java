@@ -378,7 +378,7 @@ public class HelperFunctions {
         return r.getStatusCode();
     }
 
-    public static List<Integer> getAllIncompleteTasksOfProject(int projectId) {
+    public static List<String> getAllIncompleteTasksOfProject(int projectId) {
         RequestSpecification requestPost = RestAssured.given();
         ArrayList list;
         try {
@@ -396,6 +396,7 @@ public class HelperFunctions {
 
         list.forEach((n) -> n = Integer.parseInt((String) n));
         Collections.sort(list);
+        list.forEach((n) -> n = "" + n);
         return list;
     }
 
