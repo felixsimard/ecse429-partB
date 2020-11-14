@@ -41,7 +41,7 @@ Feature: Remove task from course to do list
   Scenario Outline: Remove task from course list that it is not associated with
     When I remove "<taskTitle>" from the tasks list of "gherkin101" todo list
     Then the returned status code is "<statusCode>"
-    And the error message is "<errorMessage>" with "<project1>" and "gherkin101"
+    And the error message is "<errorMessage>" with "<taskTitle>" and "gherkin101"
 
     Examples:
       | taskTitle | statusCode | errorMessage                                                      |

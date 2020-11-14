@@ -143,7 +143,11 @@ public class HelperFunctions {
 
         Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
 
-        if (statusCode / 100 == 4) return null;
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+            return null;
+        }
 
         Project result = gson.fromJson(response.asString(), Project.class);
         return result;
@@ -197,7 +201,16 @@ public class HelperFunctions {
 
         Response response = request.delete("/projects/" + projectId + "/tasks/" + todoId);
 
-        return response.getStatusCode();
+        int statusCode = response.getStatusCode();
+
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+        }
+
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        return statusCode;
     }
 
     public static int deleteProjectFromTodo(int todoId, int projectId) {
@@ -205,7 +218,16 @@ public class HelperFunctions {
 
         Response response = request.delete("/todos/" + todoId + "/tasksof/" + projectId);
 
-        return response.getStatusCode();
+        int statusCode = response.getStatusCode();
+
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+        }
+
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        return statusCode;
     }
 
     //---------CATEGORIES------------//

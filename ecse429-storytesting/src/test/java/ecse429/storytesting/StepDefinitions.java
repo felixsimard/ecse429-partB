@@ -145,9 +145,7 @@ public class StepDefinitions {
 
     @When("^I remove \"([^\"]*)\" from the tasksof list of \"([^\"]*)\"$")
 	public void i_remove_from_the_tasksof_list_of(String courseTitle, String taskTitle) {
-		int statusCode = HelperFunctions.deleteProjectFromTodo(Context.getContext().get(taskTitle),
-				Context.getContext().get(courseTitle));
-		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+		HelperFunctions.deleteProjectFromTodo(Context.getContext().get(taskTitle), Context.getContext().get(courseTitle));
 	}
 
     @Then("^the relationship between \"([^\"]*)\" and the course \"([^\"]*)\" is destroyed$")
@@ -166,7 +164,7 @@ public class StepDefinitions {
     @Then("^the error message is \"([^\"]*)\" with \"([^\"]*)\" and \"([^\"]*)\"$")
     public void the_error_message_is_with(String expectedErrorMessageOutline, String taskTitle, String courseTitle) {
         String expectedErrorMessage = expectedErrorMessageOutline.replace("projectId", Context.getContext().get(courseTitle) + "");
-        expectedErrorMessage = expectedErrorMessageOutline.replace("taskId", Context.getContext().get(taskTitle) + "");
+        expectedErrorMessage = expectedErrorMessage.replace("taskId", Context.getContext().get(taskTitle) + "");
 
         assertEquals(expectedErrorMessage, errorMessage);
     }
@@ -188,14 +186,8 @@ public class StepDefinitions {
     @Then("^\"([^\"]*)\" is created accordingly$")
     public void is_created_accordingly(String title) throws Exception {
         int statusCode = Context.getContext().get("status_code");
-        if (statusCode == 201) {
-            Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
-            assertNotEquals(createdCourseTodoList, null);
-        } else {
-            //error flow
-            List<Project> courseTodoLists = HelperFunctions.getAllProjects();
-            assert (courseTodoLists.stream().filter(course -> course.getTitle().equals(title)).count() == 0);
-        }
+        Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
+        assertNotEquals(createdCourseTodoList, null);
     }
 
     //---------STORY06---------//
