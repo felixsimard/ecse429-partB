@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.get;
 import static org.junit.Assert.*;
 
@@ -162,6 +163,14 @@ public class StepDefinitions {
         assertEquals(null, todo.getTasksof());
     }
 
+    @Then("^the error message is \"([^\"]*)\" with \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void the_error_message_is_with(String expectedErrorMessageOutline, String taskTitle, String courseTitle) {
+        String expectedErrorMessage = expectedErrorMessageOutline.replace("projectId", Context.getContext().get(courseTitle) + "");
+        expectedErrorMessage = expectedErrorMessageOutline.replace("taskId", Context.getContext().get(taskTitle) + "");
+
+        assertEquals(expectedErrorMessage, errorMessage);
+    }
+
     //--------STORY05-------//
 
     @When("^I create a new to do list with title \"([^\"]*)\", completed status \"([^\"]*)\", active status \"([^\"]*)\", and description \"([^\"]*)\"$")
@@ -177,12 +186,13 @@ public class StepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" is created accordingly$")
-    public void the_database_is_changed_accordingly(String title) throws Exception {
+    public void is_created_accordingly(String title) throws Exception {
         int statusCode = Context.getContext().get("status_code");
         if (statusCode == 201) {
             Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
             assertNotEquals(createdCourseTodoList, null);
         } else {
+            //error flow
             List<Project> courseTodoLists = HelperFunctions.getAllProjects();
             assert (courseTodoLists.stream().filter(course -> course.getTitle().equals(title)).count() == 0);
         }
