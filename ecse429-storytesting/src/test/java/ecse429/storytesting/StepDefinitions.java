@@ -53,31 +53,43 @@ public class StepDefinitions {
 	@Given("^a task with title \"([^\"]*)\"$")
 	public void a_task_with_title(String title) throws Exception {
 		Todo todo = HelperFunctions.createTodo(title, false, "");
-		Context.getContext().set("task_id", todo.getId());
+		System.out.println("Created todo with id: " + todo.getId());
+		Context.getContext().set(todo.getTitle(), todo.getId(), ContextElement.ElementType.TODO);
 	}
 
 	@Given("^a category with the title \"([^\"]*)\"$")
 	public void a_category_with_the_HIGH(String title) throws Exception {
 		Category category = HelperFunctions.createCategory(title, "");
-		Context.getContext().set("category_id", category.getId());
+		System.out.println("Created category with id: " + category.getId());
+		System.out.println(category.getTitle());
+		Context.getContext().set(category.getTitle(), category.getId(), ContextElement.ElementType.CATEGORY);
 	}
 
-	@When("^I link the task to the category with title \"([^\"]*)\"$")
-	public void i_link_the_task_to_the_HIGH(String priority) throws Exception {
-		int task_id = Context.getContext().get("task_id");
-		int category_id = Context.getContext().get("category_id");
+	@When("^I delete the category with title \"([^\"]*)\"$")
+	public void i_delete_the_category_with_title(String title) throws Exception {
+		System.out.println(title);
+		int category_id = Context.getContext().get(title);
+
+		HelperFunctions.deleteCategory(category_id);
+	}
+
+	@When("^I link the task \"([^\"]*)\" to the category with title \"([^\"]*)\"$")
+	public void i_link_the_task_to_the_HIGH(String task_title, String category_title) throws Exception {
+		int task_id = Context.getContext().get(task_title);
+		int category_id = Context.getContext().get(category_title);
 
 		int statusCode = HelperFunctions.linkTodoAndCategory(task_id, category_id);
-		Context.getContext().set("status_code", statusCode);
+		System.out.println("Linked " + task_title + " to " + category_title + " : " + statusCode);
+		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
 	}
 
-	@Then("^the task is categorized with the title \"([^\"]*)\"")
-	public void the_task_is_categorized_with_the_HIGH(String priority) throws Exception {
-		int task_id = Context.getContext().get("task_id");
+	@Then("^the task \"([^\"]*)\" is categorized with the title \"([^\"]*)\"")
+	public void the_task_is_categorized_with_the_HIGH(String task_title, String category_title) throws Exception {
+		int task_id = Context.getContext().get(task_title);
 
-		Category c = HelperFunctions.getCategoryFromTodoId(task_id);
+		Category c = HelperFunctions.getCategoryFromTodoId(task_id, category_title);
 
-		assertEquals(priority, c.getTitle());
+		assertEquals(category_title, c.getTitle());
 	}
 
 	// -----------STORY04------------//
@@ -85,7 +97,7 @@ public class StepDefinitions {
 	@Given("^a course with title \"([^\"]*)\"$")
 	public void a_course_with_title(String courseTitle) throws Exception {
 		Project course = HelperFunctions.createProject(courseTitle, "", "", "");
-		Context.getContext().set(courseTitle, course.getId());
+		Context.getContext().set(courseTitle, course.getId(), ContextElement.ElementType.PROJECT);
 	}
 
 	@Given("^created tasks$")
@@ -98,17 +110,20 @@ public class StepDefinitions {
 		Map<String, String> ass1Map = list.get(0);
 		assignment1 = HelperFunctions.createTodo(ass1Map.get("title"), Boolean.parseBoolean(ass1Map.get("doneStatus")),
 				ass1Map.get("description"));
-		Context.getContext().set(ass1Map.get("title"), assignment1.getId());
+
+		Context.getContext().set(ass1Map.get("title"), assignment1.getId(), ContextElement.ElementType.TODO);
 
 		Map<String, String> ass2Map = list.get(1);
 		assignment2 = HelperFunctions.createTodo(ass2Map.get("title"), Boolean.parseBoolean(ass2Map.get("doneStatus")),
 				ass2Map.get("description"));
-		Context.getContext().set(ass2Map.get("title"), assignment2.getId());
+
+		Context.getContext().set(ass2Map.get("title"), assignment2.getId(), ContextElement.ElementType.TODO);
 
 		Map<String, String> hw1Map = list.get(2);
 		homework1 = HelperFunctions.createTodo(hw1Map.get("title"), Boolean.parseBoolean(hw1Map.get("doneStatus")),
 				hw1Map.get("description"));
-		Context.getContext().set(hw1Map.get("title"), homework1.getId());
+
+		Context.getContext().set(hw1Map.get("title"), homework1.getId(), ContextElement.ElementType.TODO);
 
 	}
 
@@ -122,7 +137,7 @@ public class StepDefinitions {
 	public void i_remove_from_the_course_todo_list(String todoTitle, String courseTitle) throws Exception {
 		int statusCode = HelperFunctions.deleteTodoFromProject(Context.getContext().get(todoTitle),
 				Context.getContext().get(courseTitle));
-		Context.getContext().set("status_code", statusCode);
+		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
 	}
 
 	@Then("^the returned statusCode is \"(\\d+)\"$")
@@ -163,7 +178,7 @@ public class StepDefinitions {
 	@Given("^a project with title \"([^\"]*)\"$")
 	public void aProjectWithTitle(String projectTitle) {
 		Project newProject = HelperFunctions.createProject(projectTitle,"","","");
-		Context.getContext().set("story7_project", newProject.getId());
+		Context.getContext().set("story7_project", newProject.getId(),ContextElement.ElementType.PROJECT);
 	}
 
 	/**
@@ -241,11 +256,12 @@ public class StepDefinitions {
 	
 	/*--- Story10 ---*/
 
-	@Given("^a task with description \"([^\"]*)\"$")
-	public void a_task_with_description(String description) throws Exception {
-		Todo todo = HelperFunctions.createTodo("TestStory10", false, description);
-		Context.getContext().set("task_id", todo.getId());
-	}
+//	@Given("^a task with description \"([^\"]*)\"$")
+//	public void a_task_with_description(String description) throws Exception {
+//		Todo todo = HelperFunctions.createTodo("TestStory10", false, description);
+//		ContextElement e = new ContextElement(todo.getId(), ContextElement.ElementType.TODO);
+//		Context.getContext().set("task_id", e);
+//	}
 
 	@When("^I update the task description to \"([^\"]*)\"$")
 	public void i_update_the_task_description_to(String new_description) throws Exception {
@@ -265,13 +281,13 @@ public class StepDefinitions {
 	@Given("^a task with description \"([^\"]*)\"$")
 	public void a_task_with_description_and_id(String current_description) throws Exception {
 		Todo todo = HelperFunctions.createTodo("TestStory10", false, current_description);
-		Context.getContext().set("task_id", todo.getId());
+		Context.getContext().set("task_id", todo.getId(), ContextElement.ElementType.TODO);
 	}
 
 	@When("^I update the task \"([^\"]*)\" with description \"([^\"]*)\"$")
 	public void i_update_the_task_with_description(String non_existent_task_id, String other_task_description) throws Exception {
 		int statusCode = HelperFunctions.updateTodoDescriptionWithNonExistentTaskId(Integer.parseInt(non_existent_task_id), other_task_description);
-		Context.getContext().set("status_code", statusCode);
+		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
 	}
 
 	/*---------------*/

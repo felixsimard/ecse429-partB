@@ -11,7 +11,6 @@ import io.restassured.specification.RequestSpecification;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,17 +32,72 @@ public class HelperFunctions {
     //--------APPLICATION----------//
 
     public static Process startApplication() {
+        System.out.println("Starting application...");
         Runtime rt = Runtime.getRuntime();
         try {
             process = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        boolean appStarted = false;
+        while (!appStarted) {
+            try {
+                get("http://localhost:4567/");
+                appStarted = true;
+            } catch (Exception e1){
+                try{
+                    Thread.sleep(200);
+                } catch (InterruptedException e2) {
+                    e2.printStackTrace();
+                }
+            }
+        }
+
         return process;
     }
 
     public static void stopApplication() {
         if(process != null) process.destroy();
+    }
+
+    public static void restoreInitialState() {
+        List<ContextElement> list = Context.getContext().getAllElementsToDelete();
+
+        for(ContextElement e: list) {
+            if (e.type == ContextElement.ElementType.PROJECT) {
+                deleteProject(e.id);
+                System.out.println("deleted project with id: " + e.id);
+            }
+            else if (e.type == ContextElement.ElementType.TODO) {
+                System.out.println("deleted todo with id: " + e.id);
+                deleteTodo(e.id);
+            }
+            else if (e.type == ContextElement.ElementType.CATEGORY) {
+                System.out.println("deleted category with id: " + e.id);
+                deleteCategory(e.id);
+            }
+        }
+
+        Context.resetContext();
+
+//        List<Project> projects = getAllProjects();
+//        for (Project p: projects) {
+//            deleteProject(p.getId());
+//            System.out.println("deleted project with id: " + p.getId());
+//        }
+//
+//        List<Category> categories = getAllCategories();
+//        for (Category c: categories) {
+//            deleteCategory(c.getId());
+//            System.out.println("deleted categories with id: " + c.getId());
+//        }
+//
+//        List<Todo> todos = getAllTodos();
+//        for (Todo t: todos) {
+//            deleteTodo(t.getId());
+//            System.out.println("deleted todos with id: " + t.getId());
+//        }
+
     }
 
     //---------PROJECTS------------//
@@ -71,10 +125,32 @@ public class HelperFunctions {
 
         Response response = request.post("/projects");
 
-        Context.getContext().set("status_code", response.getStatusCode());
+        Context.getContext().set("status_code", response.getStatusCode(), ContextElement.ElementType.OTHER);
 
         Project result = gson.fromJson(response.asString(), Project.class);
         return result;
+    }
+
+    public static List<Project> getAllProjects() {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        Response response = request.get("/projects");
+
+        JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
+        JsonArray arr = json.getAsJsonArray("projects");
+
+        List<Project> result = new ArrayList<>();
+        for (JsonElement obj: arr) {
+            Project proj = gson.fromJson(obj.getAsJsonObject(), Project.class);
+            result.add(proj);
+        }
+        return result;
+    }
+
+    public static void deleteProject(int projectId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        request.delete("/projects/" + projectId);
     }
 
     public static void addTodoToProject(int todoId, int projectId) {
@@ -125,6 +201,28 @@ public class HelperFunctions {
         return c;
     }
 
+    public static void deleteCategory(int categoryId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        request.delete("/categories/" + categoryId);
+    }
+
+    public static List<Category> getAllCategories() {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        Response response = request.get("/categories");
+
+        JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
+        JsonArray arr = json.getAsJsonArray("categories");
+
+        List<Category> result = new ArrayList<>();
+        for (JsonElement obj: arr) {
+            Category cat = gson.fromJson(obj.getAsJsonObject(), Category.class);
+            result.add(cat);
+        }
+        return result;
+    }
+
     public static int linkTodoAndCategory(int todoId, int categoryId) {
 
         // add the category to the todo
@@ -140,7 +238,7 @@ public class HelperFunctions {
         return r.getStatusCode();
     }
 
-    public static Category getCategoryFromTodoId(int todoId) {
+    public static Category getCategoryFromTodoId(int todoId, String category_title) {
 
         RequestSpecification request = given()
                 .header("Content-Type", "application/json")
@@ -151,7 +249,16 @@ public class HelperFunctions {
 
         JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
         JsonArray arr = json.getAsJsonArray("categories");
-        Category c = gson.fromJson(arr.get(0).getAsJsonObject(), Category.class);
+        System.out.println("array size: " + arr.size());
+        Category c = null;
+        for (JsonElement e: arr){
+            JsonObject obj = e.getAsJsonObject();
+            System.out.println("title2 " + category_title);
+            System.out.println("title1 " + obj.get("title").getAsString());
+            if (category_title.equals(obj.get("title").getAsString())) {
+                c = gson.fromJson(obj, Category.class);
+            }
+        }
         return c;
     }
 
@@ -171,6 +278,28 @@ public class HelperFunctions {
 
         Todo result = gson.fromJson(response.asString(), Todo.class);
         return result;
+    }
+
+    public static List<Todo> getAllTodos() {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        Response response = request.get("/todos");
+
+        JsonObject json = new JsonParser().parse(response.asString()).getAsJsonObject();
+        JsonArray arr = json.getAsJsonArray("todos");
+
+        List<Todo> result = new ArrayList<>();
+        for (JsonElement obj: arr) {
+            Todo todo = gson.fromJson(obj.getAsJsonObject(), Todo.class);
+            result.add(todo);
+        }
+        return result;
+    }
+
+    public static void deleteTodo(int todoId) {
+        RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
+
+        request.delete("/todos/" + todoId);
     }
     
     public static Todo getTodoFromTodoId(int todoId) {

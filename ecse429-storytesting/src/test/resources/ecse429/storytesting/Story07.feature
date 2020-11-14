@@ -5,8 +5,8 @@ Feature: Query incomplete tasks
   I query the incomplete tasks for a class I am taking,
   to help manage my time.
 
-  Background:
-    Given the application is running
+#  Background:
+#    Given the application is running
 
   Scenario Outline: Query incomplete tasks
 

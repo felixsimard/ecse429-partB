@@ -1,8 +1,6 @@
 package ecse429.storytesting;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Singleton context used to pass variables between steps
@@ -11,13 +9,13 @@ public class Context {
 
     private static Context instance = null;
 
-    private Map<String, Integer> variables;
+    private Map<String, ContextElement> variables;
 
     private Map<String, List> listVariables;
 
     public Context() {
-        this.variables = new HashMap<String, Integer>();
-        this.listVariables = new HashMap<String, List>();
+        this.listVariables = new HashMap<>();
+        this.variables = new HashMap<>();
     }
 
     public static Context getContext() {
@@ -28,15 +26,33 @@ public class Context {
     }
 
     public static void resetContext() {
+        instance.variables.clear();
         instance = null;
     }
 
     public int get(String key) {
-        return this.variables.get(key);
+        return this.variables.get(key).id;
     }
 
-    public void set(String key, int value) {
-        this.variables.put(key, value);
+    public void set(String key, int id, ContextElement.ElementType type) {
+        ContextElement el = new ContextElement(id, type);
+        this.variables.put(key, el);
+    }
+
+    public List<ContextElement> getAllElementsToDelete() {
+        List<ContextElement> result = new ArrayList<>();
+        Iterator<Map.Entry<String, ContextElement>> it = this.variables.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, ContextElement> pair = it.next();
+            if (pair.getValue().type == ContextElement.ElementType.TODO ||
+                pair.getValue().type == ContextElement.ElementType.PROJECT ||
+                pair.getValue().type == ContextElement.ElementType.CATEGORY) {
+
+                result.add(pair.getValue());
+            }
+        }
+        it.remove(); // avoids a ConcurrentModificationException
+        return result;
     }
 
     public List getListVariables(String key) {

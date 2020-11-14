@@ -5,8 +5,8 @@ Feature: Remove task from course to do list
   I remove an unnecessary task from my course to do list
   So I can forget about it.
 
-  Background:
-    Given the application is running
+#  Background:
+#    Given the application is running
 
   Scenario Outline: Remove task from course to do list
     Given a course with title "gherkin101"

@@ -4,8 +4,8 @@ Feature: Create a to do list
   I create a to do list for a new class I am taking
   so I can manage course work
 
-  Background:
-    Given the application is running
+#  Background:
+#    Given the application is running
 
     Scenario Outline: Create to do list
       When I create a new to do list with title "<title>", completed status "<completed>", active status "<active>", and description "<description>"
