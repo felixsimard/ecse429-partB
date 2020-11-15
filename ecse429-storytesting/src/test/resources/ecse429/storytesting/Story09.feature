@@ -6,15 +6,32 @@ Feature: Adjust priority of a task
 #  Background:
 #    Given the application is running
 
+  # Normal Flow and Alternate Flows (represented in examples)
   Scenario Outline: Adjust priority of a task
 
     Given a task with a priority "<initial_priority>"
-    And a category with the "<existing_category_priority>"
-    When I link the task to the "<new_priority>"
-    Then the task is categorized with the "<resulting_priority>"
+    And a category called "<new_priority>"
+    When I adjust the priority of the task to "<new_priority>"
+    Then the task is categorized with the "<new_priority>" and the old link is removed
 
     Examples:
-      | initial_priority | existing_category_priority | new_priority     | resulting_priority |
-      | HIGH             | LOW                        | LOW              | LOW                |
-      | MEDIUM           | HIGH                       | HIGH             | HIGH               |
-      | LOW              | MEDIUM                     | MEDIUM           | MEDIUM             |
+      | initial_priority | new_priority     |
+      | HIGH             | LOW              |
+      | MEDIUM           | HIGH             |
+      | LOW              | MEDIUM           |
+      | LOW              | LOW              |
+
+  # Error Flow
+  Scenario Outline: Adjust priority of a non existing task
+
+    Given a task with a priority "<initial_priority>"
+    And a category called "<new_priority>"
+    When I adjust the priority of the task to "<new_priority>"
+    Then the task is categorized with the "<new_priority>" and the old link is removed
+
+    Examples:
+      | initial_priority | new_priority     |
+      | HIGH             | LOW              |
+      | MEDIUM           | HIGH             |
+      | LOW              | MEDIUM           |
+      | LOW              | LOW              |

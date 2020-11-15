@@ -397,8 +397,8 @@ public class StepDefinitions {
     @When("^I query the incomplete tasks for this non existent project$")
     public void iQueryTheIncompleteTasksForThisNonExistentProject() {
         int projectID = Context.getContext().get("error_queryList");
-        List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
-        Context.getContext().setListVariables("error_queryList", list);
+        List<String> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
+        Context.getContext().setListVariables("error_queryList", list,ContextElement.ElementType.TODO);
     }
 
     /**
@@ -455,7 +455,7 @@ public class StepDefinitions {
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story8_highPriority", list);
+        Context.getContext().setListVariables("story8_highPriority", list, ContextElement.ElementType.TODO);
     }
 
     @And("^another set of tasks connected to any of the projects with \"([^\"]*)\" tasks that are not connected to the HIGH category$")
@@ -471,20 +471,15 @@ public class StepDefinitions {
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story8_noPriority", list);
+        Context.getContext().setListVariables("story8_noPriority", list, ContextElement.ElementType.TODO);
     }
 
     @When("^I query the incomplete tasks with category HIGH priority and doneStatus=false$")
     public void iQueryTheIncompleteTasksWithCategoryHIGHPriorityAndDoneStatusFalse() {
         int categoryId = Context.getContext().get("high_category");
-        System.out.println("Herreere"+
-                "Herreere"+
-                "Herreere"+
-                "Herreere"+
-                "Herreere"+
-                categoryId);
         List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProjectWithHighPriority(categoryId);
-        Context.getContext().setListVariables("story8_queryList", list);
+        Context.getContext().setListVariables("story8_queryList", list,ContextElement.ElementType.TODO);
+        Context.getContext().setListVariables("error_queryList", list,ContextElement.ElementType.TODO);
     }
 
     @Then("^a set is returned that is identical to the initial tasks with doneStatus=false and are connected to the HIGH priority and has \"([^\"]*)\" elements\\.$")
@@ -497,13 +492,13 @@ public class StepDefinitions {
     /*-------Error Flow--------*/
     @And("^a non existent category HIGH$")
     public void aNonExistentCategoryHIGH() {
-        Context.getContext().set("error_queryList", -1,ContextElement.ElementType.CATEGORY);
+        Context.getContext().set("high_category", -1,ContextElement.ElementType.CATEGORY);
     }
 
     @And("^an initial set of tasks connected to any of the projects$")
     public void anInitialSetOfTasksConnectedToAnyOfTheProjectsWith() {
         int projectID = Context.getContext().get("story8_project");
-        int categoryId = Context.getContext().get("high_category");
+       // int categoryId = Context.getContext().get("high_category");
         int numberOfTasks = 3;
         List<String> list = new ArrayList<String>();
 
@@ -511,11 +506,11 @@ public class StepDefinitions {
             Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done - for story8", numberOfTasks),false,"");
             list.add((String.valueOf(task.getId())));
             HelperFunctions.addTodoToProject(task.getId(), projectID);
-            HelperFunctions.linkCategoryAndTodo(task.getId(),categoryId);
+           // HelperFunctions.linkCategoryAndTodo(task.getId(),categoryId);
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story8_highPriority", list);
+        Context.getContext().setListVariables("story8_highPriority", list, ContextElement.ElementType.TODO);
     }
     /*---------------*/
 

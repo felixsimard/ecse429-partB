@@ -46,9 +46,11 @@ public class Context {
     public List<String> getListVariables(String key) {
         List<ContextElement> elementList = this.listVariables.get(key);
         List<String> result = new ArrayList<>();
-        for (ContextElement e: elementList) {
-            String id = "" + e.id;
-            result.add(id);
+        if (!elementList.isEmpty()) {
+            for (ContextElement e : elementList) {
+                String id = "" + e.id;
+                result.add(id);
+            }
         }
         return result;
     }
@@ -57,8 +59,8 @@ public class Context {
         List<ContextElement> elementList = new ArrayList<>();
         if (type == ContextElement.ElementType.TODO) {
             for (Object obj : value) {
-                Todo todo = (Todo) obj;
-                ContextElement el = new ContextElement(todo.getId(), type);
+                int x = Integer.parseInt((String) obj);
+                ContextElement el = new ContextElement(x, type);
                 elementList.add(el);
             }
         }
