@@ -35,7 +35,7 @@ Feature: Task priority categorization
         Given a category with the title "<priority1>"
         When I delete the category with title "<priority1>"
         When I link the task "ECSE429" to the category with title "<priority1>"
-        Then the returned statusCode is "<status_code>"
+        Then the returned status code is "<status_code>"
         Examples:
             | priority1 | status_code |
             | HIGH      | 404         |

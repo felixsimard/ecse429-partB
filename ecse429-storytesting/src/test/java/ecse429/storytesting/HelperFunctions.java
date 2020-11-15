@@ -180,7 +180,7 @@ public class HelperFunctions {
         }
     }
 
-    public static void addTodoToProject(int todoId, int projectId) {
+    public static int addTodoToProject(int todoId, int projectId) {
         RequestSpecification request = RestAssured.given().baseUri("http://localhost:4567");
         ;
 
@@ -190,6 +190,8 @@ public class HelperFunctions {
         request.body(requestParams.toJSONString());
 
         Response response = request.post("/projects/" + projectId + "/tasks");
+
+        return response.statusCode();
     }
 
     public static int deleteTodoFromProject(int todoId, int projectId) {
@@ -349,6 +351,19 @@ public class HelperFunctions {
         return todos.getTodos().get(0);
     }
 
+    public static void addProjectToTodoTasksOf(int todoId, int projectId) {
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("id", todoId);
+
+        RequestSpecification request = given()
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .baseUri("http://localhost:4567")
+                .body(requestParams.toJSONString());
+
+        request.post("/todos/" + todoId + "/tasksof");
+    }
+
     public static Todo updateTodoDescription(int todoId, String new_description) {
 
         RequestSpecification request = RestAssured.given();
@@ -364,6 +379,20 @@ public class HelperFunctions {
         Todo result = gson.fromJson(response.asString(), Todo.class);
 
         return result;
+    }
+
+    public static int updateTodoDoneStatus(int todoId, boolean doneStatus) {
+        RequestSpecification request = RestAssured.given();
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("doneStatus", doneStatus);
+
+        request.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
+
+        Response response = request.post("/todos/" + todoId);
+
+        return response.getStatusCode();
     }
 
     public static int updateTodoDescriptionWithNonExistentTaskId(int non_existent_task_id, String other_description) {

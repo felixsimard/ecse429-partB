@@ -1,12 +1,12 @@
 @ChangeTaskDescription
 Feature: Changing task description
-		As a student, 
-		I want to change a task description, 
+		As a student,
+		I want to change a task description,
 		to better represent the work to do.
 
 #	Background:
 #		Given the application is running
-		
+
 		# Normal Flow
 		Scenario Outline: Change description of a current task to a new one
 			Given a task with description "<current_task_description>"

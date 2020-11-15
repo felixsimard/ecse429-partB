@@ -9,6 +9,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import ecse429.storytesting.model.Category;
+import ecse429.storytesting.model.Id;
 import ecse429.storytesting.model.Project;
 import ecse429.storytesting.model.Todo;
 
@@ -90,6 +91,73 @@ public class StepDefinitions {
         Category c = HelperFunctions.getCategoryFromTodoId(task_id, category_title);
 
         assertEquals(category_title, c.getTitle());
+    }
+
+    // -----------STORY02------------//
+
+    @When("^I add the task \"([^\"]*)\" to the task list of the course \"([^\"]*)\"$")
+    public void i_add_the_task_to_the_task_list_of_the_course(String taskTitle, String courseTitle) throws Exception {
+        int status_code = HelperFunctions.addTodoToProject(Context.getContext().get(taskTitle), Context.getContext().get(courseTitle));
+        Context.getContext().set("status_code", status_code, ContextElement.ElementType.OTHER);
+    }
+
+    @Then("^the task \"([^\"]*)\" is in the task list of the course \"([^\"]*)\"$")
+    public void the_task_is_in_the_task_list_of_the_course(String taskTitle, String courseTitle) throws Exception {
+        int courseTodoListId = Context.getContext().get(courseTitle);
+        int todoId = Context.getContext().get(taskTitle);
+
+        Project courseTodoList = HelperFunctions.getProjectByProjectId(courseTodoListId);
+
+        assertNotNull(courseTodoList.getTasks());
+        assertEquals(1, courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count());
+    }
+
+    @Then("^the task \"([^\"]*)\" is not in the task list of the course \"([^\"]*)\"$")
+    public void the_task_is_not_in_the_task_list_of_the_course(String taskTitle, String courseTitle) throws Exception {
+        int courseTodoListId = Context.getContext().get(courseTitle);
+
+        Project courseTodoList = HelperFunctions.getProjectByProjectId(courseTodoListId);
+
+        assertNull(courseTodoList.getTasks());
+    }
+
+    @When("^I add \"([^\"]*)\" to the the tasksof list of \"([^\"]*)\"$")
+    public void i_add_to_the_the_tasksof_list_of(String taskTitle, String courseTitle) throws Exception {
+        int courseId = Context.getContext().get(courseTitle);
+        int todoId = Context.getContext().get(taskTitle);
+
+        HelperFunctions.addProjectToTodoTasksOf(todoId, courseId);
+    }
+
+    @Given("^I delete the task with title \"([^\"]*)\"$")
+    public void i_delete_the_task_with_title(String taskTitle) throws Exception{
+        int todoId = Context.getContext().get(taskTitle);
+
+        HelperFunctions.deleteTodo(todoId);
+    }
+
+    // -----------STORY03------------//
+
+    @When("^I mark the task \"([^\"]*)\" to done$")
+    public void i_mark_the_task_to_done(String task_title) throws Exception {
+        int todoId = Context.getContext().get(task_title);
+
+        int status_code = HelperFunctions.updateTodoDoneStatus(todoId, true);
+        Context.getContext().set("status_code", status_code, ContextElement.ElementType.OTHER);
+    }
+
+    @Then("^the task \"([^\"]*)\" in the task list of the course \"([^\"]*)\" is marked as done$")
+    public void the_task_in_the_task_list_of_the_course_is_marked_as_done(String taskTitle, String courseTitle) throws Exception {
+        int courseTodoListId = Context.getContext().get(courseTitle);
+        int todoId = Context.getContext().get(taskTitle);
+
+        Project courseTodoList = HelperFunctions.getProjectByProjectId(courseTodoListId);
+
+        assertNotNull(courseTodoList.getTasks());
+        assertEquals(1, courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count());
+
+        Todo todo = HelperFunctions.getTodoFromTodoId(todoId);
+        assertTrue(todo.getDoneStatus());
     }
 
     // -----------STORY04------------//
