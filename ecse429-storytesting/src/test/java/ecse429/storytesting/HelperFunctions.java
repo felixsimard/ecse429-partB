@@ -272,6 +272,21 @@ public class HelperFunctions {
         return r.getStatusCode();
     }
 
+    public static int linkCategoryAndTodo(int todoId, int categoryId) {
+
+        // add the todo to category
+        RequestSpecification requestPost = RestAssured.given();
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("id", String.valueOf(todoId));
+
+        requestPost.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
+
+
+        Response r = requestPost.post("/categories/" + categoryId + "/todos");
+        return r.getStatusCode();
+    }
+
     public static Category getCategoryFromTodoId(int todoId, String category_title) {
 
         RequestSpecification request = given()
@@ -399,6 +414,26 @@ public class HelperFunctions {
         return list;
     }
 
+    public static List<Integer> getAllIncompleteTasksOfProjectWithHighPriority(int categoryId) {
+        RequestSpecification requestPost = RestAssured.given();
+        ArrayList list;
+        try {
+            list = requestPost.get(String.format("http://localhost:4567/categories/%d/todos?doneStatus=false", categoryId))
+                    .then()
+                    .extract()
+                    .body()
+                    .jsonPath()
+                    .get("todos.id");
+            System.out.println("Here: " + list.toString());
+        } catch (Exception e) {
+            list = new ArrayList<>();
+            System.out.println(e);
+        }
+
+        list.forEach((n) -> n = Integer.parseInt((String) n));
+        Collections.sort(list);
+        return list;
+    }
 
     private static Boolean getBoolean(String s) {
         Boolean result;
