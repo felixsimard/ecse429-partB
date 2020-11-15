@@ -1,4 +1,4 @@
-@QueryIncompleteTasks
+@Story07
 
 Feature: Query incomplete tasks
   As a student,

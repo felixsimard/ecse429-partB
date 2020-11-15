@@ -1,4 +1,5 @@
-@ChangeTaskDescription
+@Story10
+
 Feature: Changing task description
   As a student,
   I want to change a task description,
@@ -32,9 +33,9 @@ Feature: Changing task description
   Scenario Outline: Change description of a non existent task
     Given a task with description "<current_task_description>"
     When I update the task "<non_existent_task_id>" with description "<other_task_description>"
-    Then the returned statusCode is "<status_code>"
+    Then the returned status code is "<status_code>"
     Examples:
       | current_task_description | non_existent_task_id | other_task_description | status_code |
-      | clean the front windows  | 10                   | new description        | 400         |
-      | watch lecture            | 12                   | new description        | 400         |
-      | pickup sister            | 8                    | new description        | 400         |
+      | clean the front windows  | 10                   | new description        | 404         |
+      | watch lecture            | 12                   | new description        | 404         |
+      | pickup sister            | 8                    | new description        | 404         |

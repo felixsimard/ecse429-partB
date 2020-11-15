@@ -1,4 +1,4 @@
-@QueryIncompleteHighPriorityTasks
+@Story08
 
 Feature: Query all incomplete HIGH priority tasks
   As a student,

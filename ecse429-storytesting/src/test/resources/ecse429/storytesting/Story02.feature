@@ -1,3 +1,5 @@
+@Story02
+
 Feature: Adding task to courses
   As a student,
   I add a task to a course to do list,

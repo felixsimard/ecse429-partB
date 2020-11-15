@@ -1,3 +1,5 @@
+@Story01
+
 Feature: Task priority categorization
     As a student,
     I categorize tasks as HIGH, MEDIUM or LOW priority,

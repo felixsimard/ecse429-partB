@@ -1,4 +1,4 @@
-@RemoveTask
+@Story04
 
 Feature: Remove task from course to do list
   As a student

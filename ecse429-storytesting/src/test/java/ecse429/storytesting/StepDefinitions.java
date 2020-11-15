@@ -416,7 +416,7 @@ public class StepDefinitions {
     public void anErrorMessageIsReturned() {
         List listFromQuery = Context.getContext().getListVariables("error_queryList");
         List emptyList = new ArrayList<>();
-        assertArrayEquals(listFromQuery.toArray(),emptyList.toArray());
+        assertArrayEquals(listFromQuery.toArray(), emptyList.toArray());
     }
     /*---------------*/
 
@@ -601,12 +601,6 @@ public class StepDefinitions {
         }catch (Exception e){
             Context.getContext().set("Story10Error", 1, ContextElement.ElementType.OTHER);
         }
-    }
-
-    @Then("^the returned statusCode is \"([^\"]*)\"$")
-    public void theReturnedStatusCodeIs(String arg0) throws Throwable {
-        int b = Context.getContext().get("Story10Error");
-        assertEquals(1, b);
     }
 
     /*---------------*/

@@ -1,4 +1,5 @@
-@RemoveTodoList
+@Story06
+
 Feature: Remove course to do list
   As a student
   I remove a to do list for a class whichI am no longer taking

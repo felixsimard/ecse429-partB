@@ -1,4 +1,5 @@
-@CreateTodoList
+@Story05
+
 Feature: Create a to do list
   As a student
   I create a to do todo list for a new class I am taking

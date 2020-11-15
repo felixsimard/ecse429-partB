@@ -421,11 +421,10 @@ public class HelperFunctions {
 
         Response response = request.put("/todos/" + todoId);
 
-        if (response.statusCode() == 404) {
-            throw new Exception("Task does not exist");
-        }
+        int statusCode = response.getStatusCode();
 
-        System.out.println(response.getStatusCode());
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
         Todo result = gson.fromJson(response.asString(), Todo.class);
 
         return result;
