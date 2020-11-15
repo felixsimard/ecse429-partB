@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 public class HelperFunctions {
 
     private static final int STATUS_CODE_CREATED = 201;
+    private static final int STATUS_CODE_OK = 200;
     private static Gson gson = new Gson();
     private static Process process;
 
@@ -407,18 +408,24 @@ public class HelperFunctions {
         request.post("/todos/" + todoId + "/tasksof");
     }
 
-    public static Todo updateTodoDescription(int todoId, String new_description) {
+    public static Todo updateTodoDescription(int todoId, String new_description, String oldTitle) throws Exception{
 
         RequestSpecification request = RestAssured.given();
 
         JSONObject requestParams = new JSONObject();
         requestParams.put("description", new_description);
+        requestParams.put("title", oldTitle);
 
         request.body(requestParams.toJSONString())
                 .baseUri("http://localhost:4567");
 
         Response response = request.put("/todos/" + todoId);
 
+        if (response.statusCode() == 404) {
+            throw new Exception("Task does not exist");
+        }
+
+        System.out.println(response.getStatusCode());
         Todo result = gson.fromJson(response.asString(), Todo.class);
 
         return result;
@@ -436,18 +443,6 @@ public class HelperFunctions {
         Response response = request.post("/todos/" + todoId);
 
         return response.getStatusCode();
-    }
-
-    public static int updateTodoDescriptionWithNonExistentTaskId(int non_existent_task_id, String other_description) {
-        RequestSpecification requestPost = RestAssured.given();
-        JSONObject requestParams = new JSONObject();
-        requestParams.put("description", other_description);
-
-        requestPost.body(requestParams.toJSONString())
-                .baseUri("http://localhost:4567");
-
-        Response r = requestPost.put("/todos/" + non_existent_task_id);
-        return r.getStatusCode();
     }
 
     public static List<String> getAllIncompleteTasksOfProject(int projectId) {

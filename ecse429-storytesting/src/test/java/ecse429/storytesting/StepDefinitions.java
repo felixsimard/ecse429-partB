@@ -573,38 +573,40 @@ public class StepDefinitions {
 
     /*--- Story10 ---*/
 
-//	@Given("^a task with description \"([^\"]*)\"$")
-//	public void a_task_with_description(String description) throws Exception {
-//		Todo todo = HelperFunctions.createTodo("TestStory10", false, description);
-//		ContextElement e = new ContextElement(todo.getId(), ContextElement.ElementType.TODO);
-//		Context.getContext().set("task_id", e);
-//	}
+    @Given("^a task with description \"([^\"]*)\"$")
+    public void a_task_with_description_and_id(String current_description) throws Exception {
+        Todo todo = HelperFunctions.createTodo("TestStory10", false, current_description);
+        Context.getContext().set("TestStory10", todo.getId(), ContextElement.ElementType.TODO);
+    }
 
     @When("^I update the task description to \"([^\"]*)\"$")
     public void i_update_the_task_description_to(String new_description) throws Exception {
-        int task_id = Context.getContext().get("task_id");
-        HelperFunctions.updateTodoDescription(task_id, new_description);
+        int task_id = Context.getContext().get("TestStory10");
+        HelperFunctions.updateTodoDescription(task_id, new_description,"TestStory10");
     }
 
     @Then("^the task has description \"([^\"]*)\"$")
     public void the_task_has_description(String resulting_description) throws Exception {
-        int task_id = Context.getContext().get("task_id");
-
+        int task_id = Context.getContext().get("TestStory10");
         Todo t = HelperFunctions.getTodoFromTodoId(task_id);
-
         assertEquals(resulting_description, t.getDescription());
-    }
-
-    @Given("^a task with description \"([^\"]*)\"$")
-    public void a_task_with_description_and_id(String current_description) throws Exception {
-        Todo todo = HelperFunctions.createTodo("TestStory10", false, current_description);
-        Context.getContext().set("task_id", todo.getId(), ContextElement.ElementType.TODO);
     }
 
     @When("^I update the task \"([^\"]*)\" with description \"([^\"]*)\"$")
     public void i_update_the_task_with_description(String non_existent_task_id, String other_task_description) throws Exception {
-        int statusCode = HelperFunctions.updateTodoDescriptionWithNonExistentTaskId(Integer.parseInt(non_existent_task_id), other_task_description);
-        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+        int task_id = Integer.parseInt(non_existent_task_id);
+        try{
+            HelperFunctions.updateTodoDescription(task_id, other_task_description,"TestStory10");
+            Context.getContext().set("Story10Error", 0, ContextElement.ElementType.OTHER);
+        }catch (Exception e){
+            Context.getContext().set("Story10Error", 1, ContextElement.ElementType.OTHER);
+        }
+    }
+
+    @Then("^the returned statusCode is \"([^\"]*)\"$")
+    public void theReturnedStatusCodeIs(String arg0) throws Throwable {
+        int b = Context.getContext().get("Story10Error");
+        assertEquals(1, b);
     }
 
     /*---------------*/
