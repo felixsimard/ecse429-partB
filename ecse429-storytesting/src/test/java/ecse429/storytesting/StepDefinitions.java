@@ -380,6 +380,9 @@ public class StepDefinitions {
         Context.getContext().setListVariables("story7_queryList", list, ContextElement.ElementType.TODO);
     }
 
+    /**
+     * This method asserts that that the query for all incomplete tasks returns all the tasks that it should.
+     */
     @Then("^a set is returned which is identical to the initial set of tasks with value false for doneStatus and has \"([^\"]*)\" elements\\.$")
     public void aSetIsReturnedWhichIsIdenticalToTheInitialSetOfTasksWithValueFalseForDoneStatusAndHasElements(String arg0) {
         List<String> listFromQuery = Context.getContext().getListVariables("story7_queryList");
@@ -415,13 +418,9 @@ public class StepDefinitions {
         List emptyList = new ArrayList<>();
         assertArrayEquals(listFromQuery.toArray(),emptyList.toArray());
     }
-
-    /*---------------*/
-
     /*---------------*/
 
     /*--- Story8 ---*/
-
     /*--- Note that some of step definitions for story 8 are reused from story 7 and story 1 ---*/
 
     @Given("^\"([^\"]*)\" projects exists$")
@@ -515,6 +514,61 @@ public class StepDefinitions {
     /*---------------*/
 
     /*--- Story9 ---*/
+
+    @Given("^a task with a priority \"([^\"]*)\"$")
+    public void aTaskWithAPriority(String oldPriority) throws Throwable {
+        Todo newTask = HelperFunctions.createTodo("story9_todo",false,"");
+        Category newCategory = HelperFunctions.createCategory("story9_oldPriority","");
+        HelperFunctions.linkTodoAndCategory(newTask.getId(),newCategory.getId());
+        Context.getContext().set("story9_todo", newTask.getId(), ContextElement.ElementType.TODO);
+        Context.getContext().set("story9_oldPriority", newCategory.getId(), ContextElement.ElementType.TODO);
+    }
+
+    @And("^a category called \"([^\"]*)\"$")
+    public void aCategoryCalled(String newPriority) throws Throwable {
+        Category newCategory = HelperFunctions.createCategory(newPriority,"");
+        Context.getContext().set(newPriority, newCategory.getId(), ContextElement.ElementType.CATEGORY);
+    }
+
+    @When("^I adjust the priority of the task to \"([^\"]*)\" and remove \"([^\"]*)\"$")
+    public void iAdjustThePriorityOfTheTaskToAndRemove(String newPriority, String oldPriority) throws Throwable {
+        int newCategoryId = Context.getContext().get(newPriority);
+        int oldCategoryId = Context.getContext().get("story9_oldPriority");
+        int todoId = Context.getContext().get("story9_todo");
+        HelperFunctions.linkTodoAndCategory(todoId, newCategoryId);
+        HelperFunctions.removeTodoAndCategoryLink(todoId, oldCategoryId);
+    }
+
+    @Then("^the task is categorized with the \"([^\"]*)\" and the old link to \"([^\"]*)\" is removed$")
+    public void theTaskIsCategorizedWithTheAndTheOldLinkToIsRemoved(String newPriority, String oldPriority) throws Throwable {
+        int todoId = Context.getContext().get("story9_todo");
+        int newCategoryId = Context.getContext().get(newPriority);
+        Category queryCategoryNew = HelperFunctions.getCategoryFromTodoId(todoId, newPriority);
+        Category queryCategoryOld = HelperFunctions.getCategoryFromTodoId(todoId, "story9_oldPriority");
+
+        assertEquals(newCategoryId,queryCategoryNew.getId());
+        assertEquals(null, queryCategoryOld);
+    }
+
+    /*-------Error Flow--------*/
+    @Given("^a non existing task with a priority \"([^\"]*)\"$")
+    public void aNonExistingTaskWithAPriority(String arg0) throws Throwable {
+        Context.getContext().set("story9_errorTask", -1, ContextElement.ElementType.TODO);
+    }
+
+    @When("^I adjust the priority of the task to \"([^\"]*)\"$")
+    public void iAdjustThePriorityOfTheTaskTo(String newPriority) throws Throwable {
+        int newCategoryId = Context.getContext().get(newPriority);
+        int todoId = Context.getContext().get("story9_errorTask");
+        int statusCode = HelperFunctions.linkTodoAndCategory(todoId, newCategoryId);
+        Context.getContext().set("story9_error_response", statusCode, ContextElement.ElementType.OTHER);
+    }
+
+    @Then("^I receive an error message$")
+    public void iReceiveAnErrorMessage() {
+        int statusCode = Context.getContext().get("story9_error_response");
+        assertEquals(404,statusCode);
+    }
     /*---------------*/
 
     /*--- Story10 ---*/

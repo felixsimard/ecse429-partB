@@ -311,6 +311,12 @@ public class HelperFunctions {
         return r.getStatusCode();
     }
 
+    public static int removeTodoAndCategoryLink(int todoId, int categoryId) {
+        RequestSpecification requestPost = RestAssured.given();
+        Response r = requestPost.delete("http://localhost:4567/todos/" + todoId + "/categories/" + categoryId);
+        return r.getStatusCode();
+    }
+
     public static Category getCategoryFromTodoId(int todoId, String category_title) {
 
         RequestSpecification request = given()

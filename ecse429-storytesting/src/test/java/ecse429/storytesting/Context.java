@@ -46,11 +46,9 @@ public class Context {
     public List<String> getListVariables(String key) {
         List<ContextElement> elementList = this.listVariables.get(key);
         List<String> result = new ArrayList<>();
-        if (!elementList.isEmpty()) {
-            for (ContextElement e : elementList) {
-                String id = "" + e.id;
-                result.add(id);
-            }
+        for (ContextElement e : elementList) {
+            String id = "" + e.id;
+            result.add(id);
         }
         return result;
     }
@@ -63,16 +61,14 @@ public class Context {
                 ContextElement el = new ContextElement(x, type);
                 elementList.add(el);
             }
-        }
-        else if (type == ContextElement.ElementType.PROJECT) {
-            for(Object obj: value) {
+        } else if (type == ContextElement.ElementType.PROJECT) {
+            for (Object obj : value) {
                 Project project = (Project) obj;
                 ContextElement el = new ContextElement(project.getId(), type);
                 elementList.add(el);
             }
-        }
-        else if (type == ContextElement.ElementType.CATEGORY) {
-            for(Object obj: value) {
+        } else if (type == ContextElement.ElementType.CATEGORY) {
+            for (Object obj : value) {
                 Category category = (Category) obj;
                 ContextElement el = new ContextElement(category.getId(), type);
                 elementList.add(el);
@@ -87,8 +83,8 @@ public class Context {
         while (it.hasNext()) {
             Map.Entry<String, ContextElement> pair = it.next();
             if (pair.getValue().type == ContextElement.ElementType.TODO ||
-                pair.getValue().type == ContextElement.ElementType.PROJECT ||
-                pair.getValue().type == ContextElement.ElementType.CATEGORY) {
+                    pair.getValue().type == ContextElement.ElementType.PROJECT ||
+                    pair.getValue().type == ContextElement.ElementType.CATEGORY) {
 
                 result.add(pair.getValue());
             }
@@ -98,7 +94,7 @@ public class Context {
         Iterator<Map.Entry<String, List<ContextElement>>> it2 = this.listVariables.entrySet().iterator();
         while (it2.hasNext()) {
             Map.Entry<String, List<ContextElement>> pair = it2.next();
-            for(ContextElement e: pair.getValue()) {
+            for (ContextElement e : pair.getValue()) {
                 if (e.type == ContextElement.ElementType.TODO ||
                         e.type == ContextElement.ElementType.PROJECT ||
                         e.type == ContextElement.ElementType.CATEGORY) {
