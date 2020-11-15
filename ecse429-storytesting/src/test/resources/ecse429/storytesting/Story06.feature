@@ -6,8 +6,7 @@ Feature: Remove course to do list
   to declutter my schedule.
 
   Background:
-    Given the application is running
-    And created course to do lists
+    Given created course to do lists
       | title           | completed       | active       | description    |
       | gherkin101Todo  | true            | true         | get this done  |
       | gherkin202Todo  | true            | true         | this is empty  |

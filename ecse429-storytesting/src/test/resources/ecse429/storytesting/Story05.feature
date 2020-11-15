@@ -5,9 +5,6 @@ Feature: Create a to do list
   I create a to do todo list for a new class I am taking
   so I can manage course work
 
-#  Background:
-#    Given the application is running
-
   #Normal and Alternate Flow
     Scenario Outline: Create to do list
       When I create a new to do list with title "<title>", completed status "<completed>", active status "<active>", and description "<description>"

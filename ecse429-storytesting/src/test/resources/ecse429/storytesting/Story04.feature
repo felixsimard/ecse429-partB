@@ -6,7 +6,6 @@ Feature: Remove task from course to do list
   So I can forget about it.
 
   Background:
-#    Given the application is running
     Given a course with title "gherkin101"
     And created tasks
       | title            | doneStatus | description          |
