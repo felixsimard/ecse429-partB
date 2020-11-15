@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.get;
 import static org.junit.Assert.*;
 
@@ -144,9 +145,7 @@ public class StepDefinitions {
 
     @When("^I remove \"([^\"]*)\" from the tasksof list of \"([^\"]*)\"$")
 	public void i_remove_from_the_tasksof_list_of(String courseTitle, String taskTitle) {
-		int statusCode = HelperFunctions.deleteProjectFromTodo(Context.getContext().get(taskTitle),
-				Context.getContext().get(courseTitle));
-		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+		HelperFunctions.deleteProjectFromTodo(Context.getContext().get(taskTitle), Context.getContext().get(courseTitle));
 	}
 
     @Then("^the relationship between \"([^\"]*)\" and the course \"([^\"]*)\" is destroyed$")
@@ -160,6 +159,14 @@ public class StepDefinitions {
         //confirm that the task is no longer linked to the course to do list
         assertEquals(0, courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count());
         assertEquals(null, todo.getTasksof());
+    }
+
+    @Then("^the error message is \"([^\"]*)\" with \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void the_error_message_is_with(String expectedErrorMessageOutline, String taskTitle, String courseTitle) {
+        String expectedErrorMessage = expectedErrorMessageOutline.replace("projectId", Context.getContext().get(courseTitle) + "");
+        expectedErrorMessage = expectedErrorMessage.replace("taskId", Context.getContext().get(taskTitle) + "");
+
+        assertEquals(expectedErrorMessage, errorMessage);
     }
 
     //--------STORY05-------//
@@ -177,15 +184,10 @@ public class StepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" is created accordingly$")
-    public void the_database_is_changed_accordingly(String title) throws Exception {
+    public void is_created_accordingly(String title) throws Exception {
         int statusCode = Context.getContext().get("status_code");
-        if (statusCode == 201) {
-            Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
-            assertNotEquals(createdCourseTodoList, null);
-        } else {
-            List<Project> courseTodoLists = HelperFunctions.getAllProjects();
-            assert (courseTodoLists.stream().filter(course -> course.getTitle().equals(title)).count() == 0);
-        }
+        Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
+        assertNotEquals(createdCourseTodoList, null);
     }
 
     //---------STORY06---------//
@@ -273,7 +275,7 @@ public class StepDefinitions {
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story7_falseTasks", list);
+        Context.getContext().setListVariables("story7_falseTasks", list, ContextElement.ElementType.TODO);
     }
 
     /**
@@ -295,7 +297,7 @@ public class StepDefinitions {
             numberOfTasks--;
         }
         Collections.sort(list);
-        Context.getContext().setListVariables("story7_trueTasks", list);
+        Context.getContext().setListVariables("story7_trueTasks", list, ContextElement.ElementType.TODO);
     }
 
     /**
@@ -306,15 +308,15 @@ public class StepDefinitions {
     @When("^I query the incomplete tasks for this project$")
     public void iQueryTheIncompleteTasksForThisProject() {
         int projectID = Context.getContext().get("story7_project");
-        List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
-        Context.getContext().setListVariables("story7_queryList", list);
+        List<String> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
+        Context.getContext().setListVariables("story7_queryList", list, ContextElement.ElementType.TODO);
     }
 
     @Then("^a set is returned which is identical to the initial set of tasks with value false for doneStatus and has \"([^\"]*)\" elements\\.$")
     public void aSetIsReturnedWhichIsIdenticalToTheInitialSetOfTasksWithValueFalseForDoneStatusAndHasElements(String arg0) {
-        List listFromQuery = Context.getContext().getListVariables("story7_queryList");
-        List actualIncompleteTasks = Context.getContext().getListVariables("story7_falseTasks");
-        assertArrayEquals(listFromQuery.toArray(),actualIncompleteTasks.toArray());
+        List<String> listFromQuery = Context.getContext().getListVariables("story7_queryList");
+        List<String> actualIncompleteTasks = Context.getContext().getListVariables("story7_falseTasks");
+        assertArrayEquals(listFromQuery.toArray(), actualIncompleteTasks.toArray());
     }
 
     /*--------Error Flow --------*/

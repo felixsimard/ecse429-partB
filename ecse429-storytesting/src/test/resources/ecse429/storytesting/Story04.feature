@@ -15,7 +15,7 @@ Feature: Remove task from course to do list
       | project1         | true       | my first project     |
     And "assignment1" and "assignment2" are added to the course "gherkin101" todo list
 
-# Normal and Error Flow Outline
+# Normal Flow
   Scenario Outline: Remove task from course to do list - from project API
     When I remove "<taskTitle>" from the tasks list of "gherkin101" todo list
     Then the returned status code is "<statusCode>"
@@ -25,10 +25,9 @@ Feature: Remove task from course to do list
       | taskTitle        | statusCode |
       # Normal Flow
       | assignment1      | 200        |
-      # Error Flow
-      | project1         | 404        |
+      | assignment2      | 200        |
 
-# Alternate Flow Outline
+# Alternate Flow
   Scenario Outline: Remove task from course to do list - from todo API
     When I remove "gherkin101" from the tasksof list of "<taskTitle>"
     Then the returned status code is "<statusCode>"
@@ -37,3 +36,13 @@ Feature: Remove task from course to do list
   Examples:
     | taskTitle        | statusCode |
     | assignment2      | 200        |
+
+# Error Flow
+  Scenario Outline: Remove task from course list that it is not associated with
+    When I remove "<taskTitle>" from the tasks list of "gherkin101" todo list
+    Then the returned status code is "<statusCode>"
+    And the error message is "<errorMessage>" with "<taskTitle>" and "gherkin101"
+
+    Examples:
+      | taskTitle | statusCode | errorMessage                                                      |
+      | project1  | 404        | Could not find any instances with projects/projectId/tasks/taskId |
