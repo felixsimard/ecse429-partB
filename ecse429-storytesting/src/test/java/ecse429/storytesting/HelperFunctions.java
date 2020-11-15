@@ -143,7 +143,11 @@ public class HelperFunctions {
 
         Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
 
-        if (statusCode / 100 == 4) return null;
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+            return null;
+        }
 
         Project result = gson.fromJson(response.asString(), Project.class);
         return result;
@@ -199,7 +203,16 @@ public class HelperFunctions {
 
         Response response = request.delete("/projects/" + projectId + "/tasks/" + todoId);
 
-        return response.getStatusCode();
+        int statusCode = response.getStatusCode();
+
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+        }
+
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        return statusCode;
     }
 
     public static int deleteProjectFromTodo(int todoId, int projectId) {
@@ -207,7 +220,16 @@ public class HelperFunctions {
 
         Response response = request.delete("/todos/" + todoId + "/tasksof/" + projectId);
 
-        return response.getStatusCode();
+        int statusCode = response.getStatusCode();
+
+        if (statusCode / 100 == 4) {
+            ErrorResponse e = gson.fromJson(response.asString(), ErrorResponse.class);
+            StepDefinitions.errorMessage = e.getErrorMessages().get(0);
+        }
+
+        Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+
+        return statusCode;
     }
 
     //---------CATEGORIES------------//
@@ -271,6 +293,21 @@ public class HelperFunctions {
 
 
         Response r = requestPost.post("/todos/" + todoId + "/categories");
+        return r.getStatusCode();
+    }
+
+    public static int linkCategoryAndTodo(int todoId, int categoryId) {
+
+        // add the todo to category
+        RequestSpecification requestPost = RestAssured.given();
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("id", String.valueOf(todoId));
+
+        requestPost.body(requestParams.toJSONString())
+                .baseUri("http://localhost:4567");
+
+
+        Response r = requestPost.post("/categories/" + categoryId + "/todos");
         return r.getStatusCode();
     }
 
@@ -429,6 +466,26 @@ public class HelperFunctions {
         return list;
     }
 
+    public static List<Integer> getAllIncompleteTasksOfProjectWithHighPriority(int categoryId) {
+        RequestSpecification requestPost = RestAssured.given();
+        ArrayList list;
+        try {
+            list = requestPost.get(String.format("http://localhost:4567/categories/%d/todos?doneStatus=false", categoryId))
+                    .then()
+                    .extract()
+                    .body()
+                    .jsonPath()
+                    .get("todos.id");
+            System.out.println("Here: " + list.toString());
+        } catch (Exception e) {
+            list = new ArrayList<>();
+            System.out.println(e);
+        }
+
+        list.forEach((n) -> n = Integer.parseInt((String) n));
+        Collections.sort(list);
+        return list;
+    }
 
     private static Boolean getBoolean(String s) {
         Boolean result;

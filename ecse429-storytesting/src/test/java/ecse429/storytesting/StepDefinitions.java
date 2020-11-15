@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.get;
 import static org.junit.Assert.*;
 
@@ -212,9 +213,7 @@ public class StepDefinitions {
 
     @When("^I remove \"([^\"]*)\" from the tasksof list of \"([^\"]*)\"$")
 	public void i_remove_from_the_tasksof_list_of(String courseTitle, String taskTitle) {
-		int statusCode = HelperFunctions.deleteProjectFromTodo(Context.getContext().get(taskTitle),
-				Context.getContext().get(courseTitle));
-		Context.getContext().set("status_code", statusCode, ContextElement.ElementType.OTHER);
+		HelperFunctions.deleteProjectFromTodo(Context.getContext().get(taskTitle), Context.getContext().get(courseTitle));
 	}
 
     @Then("^the relationship between \"([^\"]*)\" and the course \"([^\"]*)\" is destroyed$")
@@ -228,6 +227,14 @@ public class StepDefinitions {
         //confirm that the task is no longer linked to the course to do list
         assertEquals(0, courseTodoList.getTasks().stream().filter(id -> id.getId() == todoId).count());
         assertEquals(null, todo.getTasksof());
+    }
+
+    @Then("^the error message is \"([^\"]*)\" with \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void the_error_message_is_with(String expectedErrorMessageOutline, String taskTitle, String courseTitle) {
+        String expectedErrorMessage = expectedErrorMessageOutline.replace("projectId", Context.getContext().get(courseTitle) + "");
+        expectedErrorMessage = expectedErrorMessage.replace("taskId", Context.getContext().get(taskTitle) + "");
+
+        assertEquals(expectedErrorMessage, errorMessage);
     }
 
     //--------STORY05-------//
@@ -245,15 +252,10 @@ public class StepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" is created accordingly$")
-    public void the_database_is_changed_accordingly(String title) throws Exception {
+    public void is_created_accordingly(String title) throws Exception {
         int statusCode = Context.getContext().get("status_code");
-        if (statusCode == 201) {
-            Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
-            assertNotEquals(createdCourseTodoList, null);
-        } else {
-            List<Project> courseTodoLists = HelperFunctions.getAllProjects();
-            assert (courseTodoLists.stream().filter(course -> course.getTitle().equals(title)).count() == 0);
-        }
+        Project createdCourseTodoList = HelperFunctions.getProjectByProjectId(Context.getContext().get(title));
+        assertNotEquals(createdCourseTodoList, null);
     }
 
     //---------STORY06---------//
@@ -307,9 +309,10 @@ public class StepDefinitions {
         assertEquals(expectedErrorMessage, errorMessage);
     }
 
+    /*--- Story7 ---*/
 
+    /*--- Normal and Alternate Flows ---*/
 
-    /*--- Story7 - and - Story8 ---*/
     /**
      * This method will create a project with title equal to the input and store it in the Context variables map.
      *
@@ -320,8 +323,6 @@ public class StepDefinitions {
         Project newProject = HelperFunctions.createProject(projectTitle,"","","");
         Context.getContext().set("story7_project", newProject.getId(),ContextElement.ElementType.PROJECT);
     }
-
-    /*--- Story7 ---*/
 
     /**
      * This method will create a certain amount of tasks with doneStatus=false connected to the project with name = "story7_project".
@@ -386,15 +387,33 @@ public class StepDefinitions {
         assertArrayEquals(listFromQuery.toArray(), actualIncompleteTasks.toArray());
     }
 
-    /*--------Error Flow--------*/
+    /*--------Error Flow --------*/
 
     @Given("^a non existent project title \"([^\"]*)\"$")
     public void aNonExistentProjectTitle(String arg0)  {
-        // nothing to do here
+        Context.getContext().set("error_queryList", -1,ContextElement.ElementType.PROJECT);
     }
 
+    @When("^I query the incomplete tasks for this non existent project$")
+    public void iQueryTheIncompleteTasksForThisNonExistentProject() {
+        int projectID = Context.getContext().get("error_queryList");
+        List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProject(projectID);
+        Context.getContext().setListVariables("error_queryList", list);
+    }
+
+    /**
+     * This test makes sure that the variable in the context "story7__error_queryList" representing the return
+     * value from the previous query is empty.
+     *
+     * Note that we are expecting it to fail and the fail catch in the helper function then returns an empty list.
+     *
+     * Shared with story 7 and 8
+     */
     @Then("^an error message is returned$")
     public void anErrorMessageIsReturned() {
+        List listFromQuery = Context.getContext().getListVariables("error_queryList");
+        List emptyList = new ArrayList<>();
+        assertArrayEquals(listFromQuery.toArray(),emptyList.toArray());
     }
 
     /*---------------*/
@@ -402,49 +421,102 @@ public class StepDefinitions {
     /*---------------*/
 
     /*--- Story8 ---*/
+
     /*--- Note that some of step definitions for story 8 are reused from story 7 and story 1 ---*/
 
-//	/**
-//	 * Will create 2 false tasks with doneStatus=false and connect them to the category of the input string
-//	 * @param priority
-//	 */
-//	@And("^an initial set of tasks connected to the project that have false as doneStatus value, and are connected to the \"([^\"]*)\"$")
-//	public void anInitialSetOfTasksConnectedToTheProjectThatHaveFalseAsDoneStatusValueAndAreConnectedToThe(String priority) throws Throwable {
-//		int projectID = Context.getContext().get("story7_project");
-//		List<String> list = new ArrayList<String>();
-//		// create the tasks
-//		Todo task1 = HelperFunctions.createTodo("Task1 story8",false,"");
-//		Todo task2 = HelperFunctions.createTodo("Task2 story8",false,"");
-//		// add tasks to list
-//		list.add((String.valueOf(task1.getId())));
-//		list.add((String.valueOf(task2.getId())));
-//		// add tasks to project
-//		HelperFunctions.addTodoToProject(task1.getId(), projectID);
-//		HelperFunctions.addTodoToProject(task2.getId(), projectID);
-//		// add task to category HIGH priority
-//		HelperFunctions.linkTodoAndCategory(task1.getId(), )
-//
-//		Collections.sort(list);
-//		Context.getContext().setListVariables("story7_trueTasks", list);
-//	}
-
-    @And("^an initial set of tasks connected to the project that have false as doneStatus value, and are not connected to the \"([^\"]*)\"$")
-    public void anInitialSetOfTasksConnectedToTheProjectThatHaveFalseAsDoneStatusValueAndAreNotConnectedToThe(String arg0) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @Given("^\"([^\"]*)\" projects exists$")
+    public void projectsExists(String arg0) throws Throwable {
+        Project newProject = HelperFunctions.createProject("story8_project","","","");
+        Context.getContext().set("story8_project", newProject.getId(),ContextElement.ElementType.PROJECT);
     }
 
-    @When("^I query the incomplete tasks for this project with category HIGH priority and doneStatus=false$")
-    public void iQueryTheIncompleteTasksForThisProjectWithCategoryHIGHPriorityAndDoneStatusFalse() {
-
+    /**
+     * This method will create a category "HIGH" and store it in the Context variables map.
+     *
+     */
+    @And("^a category exists with the title HIGH$")
+    public void aCategoryExistsWithTheTitleHIGH() {
+        Category newCategory = HelperFunctions.createCategory("HIGH", "For high priority tasks");
+        Context.getContext().set("high_category", newCategory.getId(),ContextElement.ElementType.CATEGORY);
     }
 
-    @Then("^a set is returned that is identical to the initial tasks with doneStatus=false and are connected to the \"([^\"]*)\"$")
-    public void aSetIsReturnedThatIsIdenticalToTheInitialTasksWithDoneStatusFalseAndAreConnectedToThe(String arg0) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @And("^an initial set of tasks connected to any of the projects with \"([^\"]*)\" tasks that have false as doneStatus value, and are connected to the HIGH category$")
+    public void anInitialSetOfTasksConnectedToAnyOfTheProjectsWithTasksThatHaveFalseAsDoneStatusValueAndAreConnectedToTheHIGHCategory(String arg0) throws Throwable {
+        int projectID = Context.getContext().get("story8_project");
+        int categoryId = Context.getContext().get("high_category");
+        int numberOfTasks = Integer.parseInt(arg0);
+        List<String> list = new ArrayList<String>();
+
+        while(numberOfTasks > 0){
+            Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done - for story8", numberOfTasks),false,"");
+            list.add((String.valueOf(task.getId())));
+            HelperFunctions.addTodoToProject(task.getId(), projectID);
+            HelperFunctions.linkCategoryAndTodo(task.getId(),categoryId);
+            numberOfTasks--;
+        }
+        Collections.sort(list);
+        Context.getContext().setListVariables("story8_highPriority", list);
     }
 
+    @And("^another set of tasks connected to any of the projects with \"([^\"]*)\" tasks that are not connected to the HIGH category$")
+    public void anotherSetOfTasksConnectedToAnyOfTheProjectsWithTasksThatAreNotConnectedToTheHIGHCategory(String arg0) throws Throwable {
+        int projectID = Context.getContext().get("story8_project");
+        int numberOfTasks = Integer.parseInt(arg0);
+        List<String> list = new ArrayList<String>();
+
+        while(numberOfTasks > 0){
+            Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done - for story8", numberOfTasks),false,"");
+            list.add((String.valueOf(task.getId())));
+            HelperFunctions.addTodoToProject(task.getId(), projectID);
+            numberOfTasks--;
+        }
+        Collections.sort(list);
+        Context.getContext().setListVariables("story8_noPriority", list);
+    }
+
+    @When("^I query the incomplete tasks with category HIGH priority and doneStatus=false$")
+    public void iQueryTheIncompleteTasksWithCategoryHIGHPriorityAndDoneStatusFalse() {
+        int categoryId = Context.getContext().get("high_category");
+        System.out.println("Herreere"+
+                "Herreere"+
+                "Herreere"+
+                "Herreere"+
+                "Herreere"+
+                categoryId);
+        List<Integer> list = HelperFunctions.getAllIncompleteTasksOfProjectWithHighPriority(categoryId);
+        Context.getContext().setListVariables("story8_queryList", list);
+    }
+
+    @Then("^a set is returned that is identical to the initial tasks with doneStatus=false and are connected to the HIGH priority and has \"([^\"]*)\" elements\\.$")
+    public void aSetIsReturnedThatIsIdenticalToTheInitialTasksWithDoneStatusFalseAndAreConnectedToTheHIGHPriorityAndHasElements(String arg0) throws Throwable {
+        List listFromQuery = Context.getContext().getListVariables("story8_queryList");
+        List actualHighPriorityTasks = Context.getContext().getListVariables("story8_highPriority");
+        assertArrayEquals(listFromQuery.toArray(),actualHighPriorityTasks.toArray());
+    }
+
+    /*-------Error Flow--------*/
+    @And("^a non existent category HIGH$")
+    public void aNonExistentCategoryHIGH() {
+        Context.getContext().set("error_queryList", -1,ContextElement.ElementType.CATEGORY);
+    }
+
+    @And("^an initial set of tasks connected to any of the projects$")
+    public void anInitialSetOfTasksConnectedToAnyOfTheProjectsWith() {
+        int projectID = Context.getContext().get("story8_project");
+        int categoryId = Context.getContext().get("high_category");
+        int numberOfTasks = 3;
+        List<String> list = new ArrayList<String>();
+
+        while(numberOfTasks > 0){
+            Todo task = HelperFunctions.createTodo(String.format("Task %d that is not done - for story8", numberOfTasks),false,"");
+            list.add((String.valueOf(task.getId())));
+            HelperFunctions.addTodoToProject(task.getId(), projectID);
+            HelperFunctions.linkCategoryAndTodo(task.getId(),categoryId);
+            numberOfTasks--;
+        }
+        Collections.sort(list);
+        Context.getContext().setListVariables("story8_highPriority", list);
+    }
     /*---------------*/
 
     /*--- Story9 ---*/
